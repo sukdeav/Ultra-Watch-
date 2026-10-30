@@ -3,401 +3,497 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>49mm Ultra 4G Smartwatch | POTAI ONLINE</title>
+  <title>LJ939 Ultra 4G Hardware Architecture</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Teko:wght@500;700&family=Yantramanav:wght@400;500;700;900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Teko:wght@600;700&display=swap" rel="stylesheet">
   <style>
     :root {
-      --bg: #0b0f14;
-      --card: #141b22;
+      --bg: #06090e;
+      --card: #0d131a;
       --orange: #ff5500;
-      --orange-glow: rgba(255, 85, 0, 0.4);
-      --text: #ffffff;
-      --text-dim: #94a3b8;
-      --border: #232d38;
-      --green: #10b981;
+      --cyan: #00e5ff;
+      --text: #e6edf3;
+      --dim: #8b949e;
+      --border: #21262d;
     }
 
     * {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
-      font-family: 'Yantramanav', sans-serif;
+      font-family: 'Share Tech Mono', monospace;
       -webkit-tap-highlight-color: transparent;
     }
 
     body {
-      background-color: var(--bg);
+      background: radial-gradient(circle at 50% 20%, #15202b 0%, var(--bg) 70%);
       color: var(--text);
-      overflow-x: hidden;
-      padding-bottom: 90px;
-    }
-
-    /* Top Strip */
-    .top-strip {
-      background: linear-gradient(90deg, #ff5500, #ff2200);
-      color: #fff;
-      text-align: center;
-      padding: 6px 10px;
-      font-size: 13px;
-      font-weight: 700;
-      letter-spacing: 0.5px;
-    }
-
-    /* Header */
-    header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 14px 20px;
-      background: rgba(11, 15, 20, 0.95);
-      border-bottom: 1px solid var(--border);
-      position: sticky;
-      top: 0;
-      z-index: 100;
-      backdrop-filter: blur(10px);
-    }
-    .brand {
-      font-family: 'Teko', sans-serif;
-      font-size: 26px;
-      letter-spacing: 1px;
-      color: #fff;
-    }
-    .brand span { color: var(--orange); }
-    .badge-live {
-      background: rgba(16, 185, 129, 0.15);
-      border: 1px solid var(--green);
-      color: var(--green);
-      padding: 3px 10px;
-      border-radius: 20px;
-      font-size: 11px;
-      font-weight: 700;
-    }
-
-    /* Hero Section */
-    .hero {
-      padding: 24px 20px;
-      text-align: center;
-    }
-    .tagline {
-      display: inline-block;
-      background: var(--card);
-      border: 1px solid var(--border);
-      color: var(--orange);
-      padding: 4px 14px;
-      border-radius: 30px;
-      font-size: 12px;
-      font-weight: 700;
-      margin-bottom: 12px;
-    }
-    .hero h1 {
-      font-size: 32px;
-      line-height: 1.15;
-      font-weight: 900;
-      margin-bottom: 10px;
-    }
-    .hero h1 span { color: var(--orange); }
-    .hero p {
-      color: var(--text-dim);
-      font-size: 15px;
-      line-height: 1.4;
-      margin-bottom: 20px;
-    }
-
-    /* Clear Product Image Card */
-    .image-showcase {
-      position: relative;
-      background: radial-gradient(circle at center, rgba(255, 85, 0, 0.15) 0%, transparent 70%);
-      border-radius: 24px;
-      padding: 16px;
-      margin: 10px 0 25px 0;
+      min-height: 100vh;
       display: flex;
       flex-direction: column;
       align-items: center;
-      border: 1px solid var(--border);
+      padding: 20px 14px 40px 14px;
     }
-    .image-showcase img {
+
+    /* Tech Header */
+    header {
       width: 100%;
-      max-width: 320px;
-      height: auto;
-      border-radius: 18px;
-      filter: drop-shadow(0 15px 25px rgba(255, 85, 0, 0.3));
+      max-width: 460px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: 15px;
+      border-bottom: 1px dashed var(--border);
+      margin-bottom: 20px;
     }
-    .img-specs-strip {
+    .brand {
+      font-family: 'Teko', sans-serif;
+      font-size: 28px;
+      color: #fff;
+      letter-spacing: 1px;
+    }
+    .brand span { color: var(--orange); }
+    .status-tag {
+      font-size: 11px;
+      color: var(--cyan);
+      border: 1px solid var(--cyan);
+      padding: 3px 8px;
+      border-radius: 4px;
+    }
+
+    /* Title */
+    .title-box {
+      text-align: center;
+      margin-bottom: 25px;
+    }
+    .title-box h1 {
+      font-family: 'Teko', sans-serif;
+      font-size: 34px;
+      line-height: 1;
+      letter-spacing: 1px;
+      color: #fff;
+    }
+    .title-box h1 span { color: var(--orange); }
+    .title-box p {
+      font-size: 12px;
+      color: var(--dim);
+      margin-top: 5px;
+    }
+
+    /* 3D Stage */
+    .stage-container {
+      perspective: 900px;
+      width: 280px;
+      height: 380px;
+      margin: 10px 0 25px 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .watch-assembly {
+      position: relative;
+      width: 180px;
+      height: 220px;
+      transform-style: preserve-3d;
+      transform: rotateX(55deg) rotateZ(-35deg);
+      transition: transform 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
+    }
+
+    /* Watch Layers */
+    .layer {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      border-radius: 36px;
+      transition: all 0.7s cubic-bezier(0.2, 0.8, 0.2, 1);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+      border: 1px solid rgba(255,255,255,0.15);
+      cursor: pointer;
+    }
+
+    /* 1. Glass & Screen Layer */
+    .layer-screen {
+      background: linear-gradient(145deg, rgba(20,30,45,0.9), rgba(5,10,15,0.95));
+      border: 2px solid var(--cyan);
+      z-index: 4;
+      transform: translateZ(0px);
+    }
+    .screen-ui {
+      width: 82%;
+      height: 82%;
+      border-radius: 24px;
+      background: #000;
+      border: 1px solid #1f2937;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .screen-ui::after {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: linear-gradient(45deg, transparent 40%, rgba(0,229,255,0.15) 50%, transparent 60%);
+      animation: glare 4s infinite linear;
+    }
+    @keyframes glare {
+      0% { transform: translateY(-50%); }
+      100% { transform: translateY(50%); }
+    }
+    .screen-text {
+      font-size: 26px;
+      font-weight: bold;
+      color: #fff;
+    }
+    .screen-sub {
+      font-size: 10px;
+      color: var(--cyan);
+      letter-spacing: 1px;
+    }
+
+    /* 2. Camera Module Layer */
+    .layer-camera {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      background: #111;
+      border: 2px solid var(--orange);
+      left: 50px;
+      top: 70px;
+      z-index: 3;
+      transform: translateZ(0px);
+      box-shadow: 0 0 20px rgba(255,85,0,0.4);
+    }
+    .cam-lens {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: radial-gradient(circle, #0284c7 10%, #031c30 60%, #000 90%);
+      border: 2px solid #38bdf8;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .cam-core {
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: #000;
+      border: 1px solid rgba(255,255,255,0.4);
+    }
+
+    /* 3. LJ939 Motherboard (PCB) */
+    .layer-pcb {
+      background: #064e3b;
+      border: 2px solid #10b981;
+      z-index: 2;
+      transform: translateZ(0px);
+      background-image: 
+        radial-gradient(#10b981 1px, transparent 1px),
+        linear-gradient(to right, rgba(16,185,129,0.1) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(16,185,129,0.1) 1px, transparent 1px);
+      background-size: 16px 16px;
+    }
+    .soc-chip {
+      background: #111;
+      border: 1px solid #d97706;
+      padding: 6px 10px;
+      border-radius: 6px;
+      font-size: 10px;
+      color: #f59e0b;
+      font-weight: bold;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.8);
+      margin-bottom: 6px;
+    }
+    .mic-sensor {
+      font-size: 8px;
+      color: #34d399;
+      background: rgba(0,0,0,0.6);
+      padding: 2px 6px;
+      border-radius: 3px;
+    }
+
+    /* 4. Bottom Titanium Chassis & Battery */
+    .layer-chassis {
+      background: linear-gradient(145deg, #1e2631, #0f141c);
+      border: 2px solid #475569;
+      z-index: 1;
+      transform: translateZ(0px);
+    }
+    .orange-crown {
+      position: absolute;
+      right: -12px;
+      top: 40px;
+      width: 12px;
+      height: 34px;
+      background: var(--orange);
+      border-radius: 3px;
+      box-shadow: 0 0 10px rgba(255,85,0,0.6);
+    }
+    .sim-tray-slot {
+      position: absolute;
+      left: -6px;
+      top: 60px;
+      width: 6px;
+      height: 40px;
+      background: #cbd5e1;
+      border-radius: 2px;
+    }
+
+    /* Exploded Mode (Hawa Me Alag Hone Wala Effect) */
+    .exploded .layer-screen {
+      transform: translateZ(120px);
+      box-shadow: -20px 20px 40px rgba(0, 229, 255, 0.25);
+    }
+    .exploded .layer-camera {
+      transform: translateZ(70px) scale(1.1);
+      box-shadow: -15px 15px 30px rgba(255, 85, 0, 0.4);
+    }
+    .exploded .layer-pcb {
+      transform: translateZ(10px);
+      box-shadow: -15px 15px 30px rgba(16, 185, 129, 0.25);
+    }
+    .exploded .layer-chassis {
+      transform: translateZ(-80px);
+      box-shadow: -25px 25px 50px rgba(0,0,0,0.8);
+    }
+
+    /* Control Controls */
+    .controls {
       display: flex;
       gap: 10px;
-      margin-top: 14px;
+      margin-bottom: 20px;
     }
-    .img-badge {
+    .btn-toggle {
       background: var(--card);
       border: 1px solid var(--border);
-      padding: 4px 10px;
+      color: #fff;
+      padding: 10px 18px;
       border-radius: 8px;
-      font-size: 11px;
-      font-weight: 600;
-      color: #e2e8f0;
-    }
-
-    /* Price & Offer Box */
-    .offer-box {
-      background: var(--card);
-      border: 2px solid var(--orange);
-      border-radius: 18px;
-      padding: 18px;
-      margin: 15px 0;
-      text-align: left;
-      box-shadow: 0 8px 25px rgba(0,0,0,0.5);
-    }
-    .price-row {
+      font-size: 13px;
+      cursor: pointer;
       display: flex;
-      align-items: baseline;
-      gap: 12px;
-      margin-bottom: 10px;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.3s;
     }
-    .main-price {
-      font-size: 36px;
-      font-weight: 900;
-      color: #fff;
-    }
-    .old-price {
-      font-size: 18px;
-      color: var(--text-dim);
-      text-decoration: line-through;
-    }
-    .discount-pill {
-      background: var(--orange);
-      color: #fff;
-      font-weight: 800;
-      font-size: 12px;
-      padding: 2px 8px;
-      border-radius: 6px;
+    .btn-toggle.active {
+      border-color: var(--orange);
+      background: rgba(255,85,0,0.15);
+      color: var(--orange);
     }
 
-    /* Feature Grid */
-    .features-grid {
+    /* Spec Selector Cards */
+    .spec-deck {
+      width: 100%;
+      max-width: 460px;
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 12px;
-      margin: 20px 0;
-      text-align: left;
+      gap: 10px;
     }
-    .feature-card {
+    .part-card {
       background: var(--card);
       border: 1px solid var(--border);
-      padding: 14px;
-      border-radius: 14px;
+      padding: 14px 12px;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: border-color 0.3s, transform 0.2s;
     }
-    .feature-card .icon {
-      font-size: 24px;
-      margin-bottom: 6px;
-      display: block;
+    .part-card:hover, .part-card.active {
+      border-color: var(--cyan);
+      transform: translateY(-2px);
     }
-    .feature-card h4 {
-      font-size: 15px;
+    .part-card h3 {
+      font-size: 13px;
       color: #fff;
       margin-bottom: 4px;
+      display: flex;
+      justify-content: space-between;
     }
-    .feature-card p {
-      font-size: 12px;
-      color: var(--text-dim);
+    .part-card h3 span { color: var(--cyan); font-size: 11px; }
+    .part-card p {
+      font-size: 11px;
+      color: var(--dim);
       line-height: 1.3;
     }
 
-    /* Order Form */
-    .form-container {
-      background: var(--card);
-      border: 1px solid var(--border);
-      padding: 20px;
-      border-radius: 18px;
-      margin-top: 25px;
-      text-align: left;
-    }
-    .form-container h3 {
-      font-size: 18px;
-      margin-bottom: 14px;
-      color: #fff;
-    }
-    .form-group {
-      margin-bottom: 12px;
-    }
-    .form-group label {
-      display: block;
-      font-size: 12px;
-      color: var(--text-dim);
-      margin-bottom: 5px;
-    }
-    .form-group input, .form-group select {
+    /* Detail Inspector Box */
+    .inspector {
       width: 100%;
-      padding: 12px;
-      border-radius: 10px;
-      background: #0b0f14;
-      border: 1px solid var(--border);
-      color: #fff;
-      font-size: 14px;
-    }
-    .form-group input:focus, .form-group select:focus {
-      outline: none;
-      border-color: var(--orange);
-    }
-
-    /* Fixed Bottom Action Bar */
-    .bottom-bar {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      background: rgba(11, 15, 20, 0.98);
-      border-top: 1px solid var(--border);
-      padding: 12px 20px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      backdrop-filter: blur(10px);
-      z-index: 999;
-    }
-    .bottom-bar .price {
-      font-size: 22px;
-      font-weight: 900;
-      color: #fff;
-    }
-    .bottom-bar .price small {
-      display: block;
-      font-size: 11px;
-      color: var(--green);
-      font-weight: 500;
-    }
-    .btn-buy {
-      background: linear-gradient(90deg, #ff5500, #ff2200);
-      color: #fff;
-      border: none;
-      padding: 12px 24px;
+      max-width: 460px;
+      margin-top: 15px;
+      background: #080d14;
+      border: 1px solid var(--cyan);
       border-radius: 12px;
-      font-weight: 700;
-      font-size: 15px;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      box-shadow: 0 4px 15px var(--orange-glow);
-      text-decoration: none;
-      cursor: pointer;
+      padding: 14px 16px;
+    }
+    .inspector-title {
+      font-size: 14px;
+      color: var(--cyan);
+      font-weight: bold;
+      margin-bottom: 6px;
+    }
+    .inspector-desc {
+      font-size: 12px;
+      color: var(--text);
+      line-height: 1.4;
     }
   </style>
 </head>
 <body>
 
-  <!-- Top Strip -->
-  <div class="top-strip">
-    ⚡ आज का स्पेशल ऑफर: 50% की छूट + फ्री होम डिलीवरी!
-  </div>
-
-  <!-- Header -->
   <header>
-    <div class="brand">ULTRA<span>4G</span></div>
-    <div class="badge-live">● स्टॉक सीमित है</div>
+    <div class="brand">LJ939 <span>TEARDOWN</span></div>
+    <div class="status-tag">HARDWARE V1.0</div>
   </header>
 
-  <!-- Main Hero Content -->
-  <div class="hero">
-    <div class="tagline">LJ939 4G LTE स्मार्टवॉच</div>
-    <h1>कलाई पर बंधेगा<br><span>असली 4G Android Phone</span></h1>
-    <p>डायरेक्ट सिम कार्ड सपोर्ट, HD रोटेटिंग कैमरा और क्लियर कॉलिंग साउंड के साथ।</p>
+  <div class="title-box">
+    <h1>49mm <span>EXPLODED VIEW</span></h1>
+    <p>Watch ke layers ko alag karke motherboard aur parts dekhein</p>
+  </div>
 
-    <!-- Ultra Clear HD Product Image -->
-    <div class="image-showcase">
-      <img src="https://images.unsplash.com/photo-1579586337278-3befd40fd17a?q=80&w=1000&auto=format&fit=crop" alt="49mm Ultra Smartwatch">
-      <div class="img-specs-strip">
-        <span class="img-badge">49mm डायल</span>
-        <span class="img-badge">4G सिम स्लॉट</span>
-        <span class="img-badge">HD कैमरा</span>
+  <!-- Interactive 3D Watch Assembly -->
+  <div class="stage-container">
+    <div class="watch-assembly exploded" id="watchBox">
+      
+      <!-- Layer 1: Screen -->
+      <div class="layer layer-screen" onclick="inspectPart('screen')">
+        <div class="screen-ui">
+          <div class="screen-text">12:45</div>
+          <div class="screen-sub">4G VOLTE LIVE</div>
+        </div>
       </div>
-    </div>
 
-    <!-- Pricing Box -->
-    <div class="offer-box">
-      <div class="price-row">
-        <span class="main-price">₹1,799</span>
-        <span class="old-price">₹3,999</span>
-        <span class="discount-pill">55% छूट</span>
+      <!-- Layer 2: Rotating Camera -->
+      <div class="layer layer-camera" onclick="inspectPart('camera')">
+        <div class="cam-lens">
+          <div class="cam-core"></div>
+        </div>
       </div>
-      <p style="color: var(--green); font-size: 13px; font-weight: 600;">✓ कैश ऑन डिलीवरी (COD) उपलब्ध</p>
-    </div>
 
-    <!-- Highlights -->
-    <div class="features-grid">
-      <div class="feature-card">
-        <span class="icon">📶</span>
-        <h4>4G नैनो सिम</h4>
-        <p>बिना मोबाइल के डायरेक्ट कॉल और 4G इंटरनेट चलाएं।</p>
+      <!-- Layer 3: Motherboard PCB -->
+      <div class="layer layer-pcb" onclick="inspectPart('motherboard')">
+        <div class="soc-chip">LJ939 4G SOC</div>
+        <div class="mic-sensor">MIC SENSOR LINE</div>
       </div>
-      <div class="feature-card">
-        <span class="icon">📷</span>
-        <h4>HD कैमरा</h4>
-        <p>फोटो और लाइव वीडियो रिकॉर्डिंग के लिए रोटेटिंग लेंस।</p>
-      </div>
-      <div class="feature-card">
-        <span class="icon">🎙️</span>
-        <h4>लाउड माइक व स्पीकर</h4>
-        <p>क्लियर आवाज़ के लिए हाई-गेन माइक और लाउड ऑडियो।</p>
-      </div>
-      <div class="feature-card">
-        <span class="icon">🔋</span>
-        <h4>लंबा बैटरी बैकअप</h4>
-        <p>फास्ट मैग्नेटिक चार्जिंग और लंबे बैकअप के साथ।</p>
-      </div>
-    </div>
 
-    <!-- WhatsApp Quick Order Form -->
-    <div class="form-container">
-      <h3>सीधे WhatsApp पर ऑर्डर बुक करें</h3>
-      <div class="form-group">
-        <label>आपका नाम</label>
-        <input type="text" id="custName" placeholder="अपना नाम लिखें">
+      <!-- Layer 4: Titanium Base Chassis -->
+      <div class="layer layer-chassis" onclick="inspectPart('chassis')">
+        <div class="orange-crown"></div>
+        <div class="sim-tray-slot"></div>
       </div>
-      <div class="form-group">
-        <label>शहर / गाँव का नाम</label>
-        <input type="text" id="custCity" placeholder="अपना शहर/गाँव लिखें">
-      </div>
-      <div class="form-group">
-        <label>स्ट्रैप (पट्टा) का रंग चुनें</label>
-        <select id="custColor">
-          <option value="ऑरेंज (Orange)">ऑरेंज (Orange - सबसे लोकप्रिय)</option>
-          <option value="ब्लैक (Black)">ब्लैक (Black - क्लासिक)</option>
-          <option value="ऑलिव ग्रीन (Green)">ऑलिव ग्रीन (Military Green)</option>
-        </select>
-      </div>
-      <button onclick="orderViaWhatsApp()" class="btn-buy" style="width: 100%; justify-content: center; margin-top: 8px;">
-        WhatsApp पर आर्डर भेजें 📲
-      </button>
+
     </div>
   </div>
 
-  <!-- Bottom Floating Bar -->
-  <div class="bottom-bar">
-    <div class="price">
-      ₹1,799
-      <small>फ्री होम डिलीवरी</small>
-    </div>
-    <button onclick="orderViaWhatsApp()" class="btn-buy">
-      अभी खरीदें ⚡
+  <!-- Action Controls -->
+  <div class="controls">
+    <button class="btn-toggle active" id="explodeBtn" onclick="toggleExplode()">
+      💥 Exploded (Alag Karein)
+    </button>
+    <button class="btn-toggle" onclick="rotateStage()">
+      🔄 360° Angle
     </button>
   </div>
 
+  <!-- Component Selectors -->
+  <div class="spec-deck">
+    <div class="part-card active" onclick="inspectPart('motherboard')">
+      <h3>Motherboard <span>LJ939</span></h3>
+      <p>4G LTE Network Processor & Mic Routing Circuit</p>
+    </div>
+    <div class="part-card" onclick="inspectPart('camera')">
+      <h3>HD Camera <span>180° ROTATE</span></h3>
+      <p>Telescopic Flip Lens for Video & Photos</p>
+    </div>
+    <div class="part-card" onclick="inspectPart('screen')">
+      <h3>AMOLED Display <span>2.02" HD</span></h3>
+      <p>Curved Glass Touch Panel with 60Hz Refresh</p>
+    </div>
+    <div class="part-card" onclick="inspectPart('chassis')">
+      <h3>Titanium Frame <span>49MM</span></h3>
+      <p>Nano SIM Tray Slot & Audio Acoustic Chamber</p>
+    </div>
+  </div>
+
+  <!-- Live Hardware Inspector Box -->
+  <div class="inspector">
+    <div class="inspector-title" id="inspTitle">Motherboard: LJ939 4G SOC</div>
+    <div class="inspector-desc" id="inspDesc">
+      Ye is watch ka main circuit board (PCB) hai. Isme 4G SIM controller, Bluetooth chip, audio amplifier aur high-gain electret microphone circuit soldered hota hai jo clear calling sound deliver karta hai.
+    </div>
+  </div>
+
   <script>
-    function orderViaWhatsApp() {
-      var name = document.getElementById('custName').value.trim() || 'ग्राहक';
-      var city = document.getElementById('custCity').value.trim() || 'भारत';
-      var color = document.getElementById('custColor').value;
+    let isExploded = true;
+    let angleIndex = 0;
+    const angles = [
+      "rotateX(55deg) rotateZ(-35deg)",
+      "rotateX(15deg) rotateZ(20deg)",
+      "rotateX(65deg) rotateZ(45deg)",
+      "rotateX(0deg) rotateZ(0deg)"
+    ];
 
-      var text = "नमस्ते, मुझे 49mm Ultra 4G Smartwatch ऑर्डर करनी है।%0A%0A" +
-                 "📌 नाम: " + encodeURIComponent(name) + "%0A" +
-                 "📌 पता/शहर: " + encodeURIComponent(city) + "%0A" +
-                 "📌 रंग: " + encodeURIComponent(color) + "%0A" +
-                 "📌 ऑफर मूल्य: ₹1,799 (COD)%0A%0A" +
-                 "कृपया मेरा ऑर्डर कन्फर्म करें।";
+    function toggleExplode() {
+      const box = document.getElementById('watchBox');
+      const btn = document.getElementById('explodeBtn');
+      isExploded = !isExploded;
 
-      // अपना WhatsApp नंबर यहाँ डालें (91 के साथ)
-      var phoneNumber = "919999999999"; 
-      window.open("https://wa.me/" + phoneNumber + "?text=" + text, "_blank");
+      if(isExploded) {
+        box.classList.add('exploded');
+        btn.classList.add('active');
+        btn.innerHTML = "💥 Exploded (Alag Karein)";
+      } else {
+        box.classList.remove('exploded');
+        btn.classList.remove('active');
+        btn.innerHTML = "📦 Assembled (Band Karein)";
+      }
+    }
+
+    function rotateStage() {
+      angleIndex = (angleIndex + 1) % angles.length;
+      document.getElementById('watchBox').style.transform = angles[angleIndex];
+    }
+
+    const data = {
+      motherboard: {
+        title: "Motherboard: LJ939 4G Ultra PCB",
+        desc: "Ye is watch ka main brain hai. Is green board par 4G LTE transceiver chip, SIM routing pins, low-noise microphone line aur flash memory mounted hai. Yahi se display aur camera connect hote hain."
+      },
+      camera: {
+        title: "Camera Unit: 180° Rotating Optical Lens",
+        desc: "Watch ke top frame par laga rotatable camera sensor. Is lens ko aage se peeche ghuma kar selfie ya live video calling ke liye switch kiya ja sakta hai."
+      },
+      screen: {
+        title: "Screen Unit: 2.02-inch High-Definition Panel",
+        desc: "Ultra-thin protective glass ke sath responsive touch matrix. Yeh direct Motherboard se Ribbon FPC cable ke zariye jurti hai."
+      },
+      chassis: {
+        title: "Chassis: 49mm Titanium-Grade Body",
+        desc: "Military-grade frame jisme left side par Nano-SIM card tray, right side par orange digital crown aur niche sealed audio sound chamber bana hota hai."
+      }
+    };
+
+    function inspectPart(part) {
+      document.getElementById('inspTitle').innerText = data[part].title;
+      document.getElementById('inspDesc').innerText = data[part].desc;
+      
+      // Highlight card
+      document.querySelectorAll('.part-card').forEach(c => c.classList.remove('active'));
+      event.currentTarget.classList.add('active');
+
+      // Auto ensure exploded view to see internal part
+      if(!isExploded) toggleExplode();
     }
   </script>
 </body>
