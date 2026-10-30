@@ -3,18 +3,19 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>YASHU PUDO | LJ939 4G Watch 360° Teardown</title>
+  <title>YASHU PUDO - 4G Ultra Smartwatch Full 45 Teardown Architecture</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800;900&family=Rajdhani:wght@600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Rajdhani:wght@600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
   <style>
     :root {
-      --bg: #05080c;
-      --card: #0d1520;
+      --bg: #04070b;
+      --card: #0b1118;
+      --card-hover: #131d2a;
       --orange: #ff5500;
       --cyan: #00f0ff;
       --green: #10b981;
       --gold: #f59e0b;
-      --border: #1e293b;
+      --border: #1a2332;
     }
 
     * {
@@ -25,21 +26,19 @@
     }
 
     body {
-      background: radial-gradient(circle at 50% 10%, #111d2e 0%, var(--bg) 80%);
+      background: radial-gradient(circle at 50% 5%, #0e1927 0%, var(--bg) 80%);
       color: #e2e8f0;
-      min-height: 100vh;
       font-family: 'Rajdhani', sans-serif;
       display: flex;
       flex-direction: column;
       align-items: center;
-      padding: 18px 12px 50px 12px;
+      padding: 16px 10px 60px 10px;
       overflow-x: hidden;
     }
 
-    /* Header */
     header {
       width: 100%;
-      max-width: 520px;
+      max-width: 720px;
       display: flex;
       justify-content: space-between;
       align-items: center;
@@ -48,9 +47,8 @@
     }
     .brand {
       font-family: 'Orbitron', sans-serif;
-      font-size: 18px;
+      font-size: 20px;
       font-weight: 900;
-      letter-spacing: 2px;
       color: #fff;
     }
     .brand span { color: var(--orange); }
@@ -63,121 +61,110 @@
       color: var(--cyan);
     }
 
-    /* Title Section */
-    .title-area {
+    .title-box {
       text-align: center;
-      margin: 20px 0 10px 0;
+      margin: 22px 0 10px 0;
     }
     .yashu-title {
       font-family: 'Orbitron', sans-serif;
-      font-size: 34px;
+      font-size: 36px;
       font-weight: 900;
-      letter-spacing: 3px;
-      background: linear-gradient(135deg, #ffffff 0%, var(--orange) 60%, #ff0055 100%);
+      letter-spacing: 4px;
+      background: linear-gradient(135deg, #fff 0%, var(--orange) 55%, #ff0055 100%);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
-      text-shadow: 0 0 25px rgba(255, 85, 0, 0.4);
+      text-shadow: 0 0 25px rgba(255, 85, 0, 0.45);
     }
-    .sub-head {
+    .yashu-sub {
       font-family: 'Share Tech Mono', monospace;
       font-size: 12px;
       color: #94a3b8;
+      letter-spacing: 1.5px;
       margin-top: 4px;
-      letter-spacing: 1px;
     }
 
-    /* 3D Stage */
+    /* 3D Model Stage */
     .stage {
       perspective: 1200px;
       width: 320px;
       height: 480px;
-      margin: 10px 0;
       display: flex;
       justify-content: center;
       align-items: center;
+      margin: 10px 0;
     }
-
     .watch-rig {
       position: relative;
-      width: 190px;
-      height: 230px;
+      width: 180px;
+      height: 220px;
       transform-style: preserve-3d;
       transform: rotateX(60deg) rotateZ(-30deg);
       transition: transform 0.2s ease-out;
     }
-
     .watch-rig.rotating {
       animation: spin360 14s linear infinite;
     }
-
     @keyframes spin360 {
       0% { transform: rotateX(60deg) rotateZ(0deg); }
       100% { transform: rotateX(60deg) rotateZ(360deg); }
     }
 
-    /* Layers Base Styling */
     .layer {
       position: absolute;
       width: 100%;
       height: 100%;
-      border-radius: 40px;
-      transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.5s;
-      cursor: pointer;
+      border-radius: 38px;
+      transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      border: 1px solid rgba(255, 255, 255, 0.2);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      cursor: pointer;
     }
 
-    /* 1. Top Glass & Display */
-    .layer-glass {
-      background: linear-gradient(135deg, rgba(0, 240, 255, 0.3), rgba(0, 0, 0, 0.85));
+    .layer-screen {
+      background: linear-gradient(135deg, rgba(0, 240, 255, 0.25), rgba(0,0,0,0.85));
       border: 2px solid var(--cyan);
-      box-shadow: 0 0 30px rgba(0, 240, 255, 0.4);
+      box-shadow: 0 0 25px rgba(0, 240, 255, 0.35);
       z-index: 5;
     }
-    .display-matrix {
+    .disp-screen {
       width: 80%;
       height: 80%;
+      border-radius: 24px;
       background: #000;
-      border-radius: 26px;
+      border: 1px solid #1e293b;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      border: 1px solid #1e293b;
-      position: relative;
-      overflow: hidden;
     }
-    .display-time {
+    .disp-text {
       font-family: 'Orbitron', sans-serif;
-      font-size: 26px;
-      font-weight: 800;
+      font-size: 24px;
       color: #fff;
     }
-    .display-tag {
+    .disp-tag {
       font-family: 'Share Tech Mono', monospace;
       font-size: 9px;
       color: var(--cyan);
-      letter-spacing: 1px;
     }
 
-    /* 2. Rotating Camera Ring */
     .layer-cam {
-      width: 90px;
-      height: 90px;
+      width: 80px;
+      height: 80px;
       border-radius: 50%;
       background: #0f172a;
-      border: 3px solid var(--orange);
-      box-shadow: 0 0 25px rgba(255, 85, 0, 0.5);
+      border: 2px solid var(--orange);
       top: 70px;
       left: 50px;
       z-index: 4;
+      box-shadow: 0 0 20px rgba(255, 85, 0, 0.4);
     }
     .cam-lens {
-      width: 48px;
-      height: 48px;
+      width: 42px;
+      height: 42px;
       border-radius: 50%;
       background: radial-gradient(circle, #0284c7 20%, #031e33 70%, #000 95%);
       border: 2px solid #38bdf8;
@@ -185,17 +172,16 @@
       align-items: center;
       justify-content: center;
     }
-    .cam-optic {
-      width: 16px;
-      height: 16px;
+    .cam-core {
+      width: 14px;
+      height: 14px;
       border-radius: 50%;
       background: #000;
       border: 1px solid #93c5fd;
     }
 
-    /* 3. Motherboard PCB */
     .layer-pcb {
-      background: #064e3b;
+      background: #043829;
       border: 2px solid var(--green);
       background-image: 
         radial-gradient(var(--green) 1px, transparent 1px),
@@ -205,38 +191,36 @@
       z-index: 3;
     }
     .soc-chip {
-      background: #022c22;
+      background: #021f17;
       border: 1px solid var(--gold);
       color: var(--gold);
       font-family: 'Orbitron', sans-serif;
-      font-size: 11px;
-      padding: 5px 8px;
-      border-radius: 6px;
+      font-size: 10px;
+      padding: 4px 7px;
+      border-radius: 5px;
       font-weight: 700;
-      margin-bottom: 6px;
-      box-shadow: 0 0 10px rgba(245, 158, 11, 0.3);
+      margin-bottom: 4px;
     }
-    .mic-sensor-chip {
+    .pcb-details {
       font-family: 'Share Tech Mono', monospace;
       font-size: 8px;
       color: #6ee7b7;
       background: rgba(0,0,0,0.6);
-      padding: 2px 5px;
+      padding: 2px 6px;
       border-radius: 3px;
     }
 
-    /* 4. Battery & Vibration Motor */
     .layer-battery {
       background: #1e293b;
       border: 2px solid #64748b;
       z-index: 2;
     }
-    .batt-pack {
+    .batt-block {
       width: 75%;
       height: 60%;
-      background: #0f172a;
-      border: 1px solid #475569;
-      border-radius: 14px;
+      background: #0a0f18;
+      border: 1px solid #334155;
+      border-radius: 12px;
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -247,42 +231,41 @@
     }
     .vib-motor {
       position: absolute;
-      bottom: 16px;
-      right: 24px;
+      bottom: 14px;
+      right: 20px;
       width: 22px;
       height: 22px;
       border-radius: 50%;
       background: #cbd5e1;
       border: 2px solid var(--gold);
-      box-shadow: 0 0 8px var(--gold);
+      box-shadow: 0 0 6px var(--gold);
     }
 
-    /* 5. Bottom Titanium Chassis */
     .layer-chassis {
       background: linear-gradient(145deg, #1e293b, #090d14);
       border: 2px solid #475569;
       z-index: 1;
     }
-    .crown {
+    .crown-btn {
       position: absolute;
-      right: -14px;
+      right: -13px;
       top: 45px;
-      width: 14px;
-      height: 38px;
+      width: 13px;
+      height: 36px;
       background: var(--orange);
-      border-radius: 4px;
-      box-shadow: 0 0 12px var(--orange);
+      border-radius: 3px;
+      box-shadow: 0 0 10px var(--orange);
     }
-    .sim-slot {
+    .sim-tray {
       position: absolute;
       left: -8px;
-      top: 60px;
+      top: 55px;
       width: 8px;
-      height: 42px;
+      height: 40px;
       background: #94a3b8;
-      border-radius: 3px;
+      border-radius: 2px;
     }
-    .hr-sensor {
+    .hr-plate {
       width: 44px;
       height: 44px;
       border-radius: 50%;
@@ -292,36 +275,33 @@
       align-items: center;
       justify-content: center;
     }
-    .hr-led {
+    .hr-optic {
       width: 10px;
       height: 10px;
       border-radius: 50%;
       background: var(--green);
-      box-shadow: 0 0 10px var(--green);
+      box-shadow: 0 0 8px var(--green);
     }
 
-    /* True Teardown Separation */
-    .exploded .layer-glass   { transform: translateZ(190px); }
+    .exploded .layer-screen  { transform: translateZ(190px); }
     .exploded .layer-cam     { transform: translateZ(120px) scale(1.1); }
     .exploded .layer-pcb     { transform: translateZ(40px); }
     .exploded .layer-battery { transform: translateZ(-50px); }
     .exploded .layer-chassis { transform: translateZ(-140px); }
+    .assembled .layer        { transform: translateZ(0px) !important; }
 
-    .collapsed .layer { transform: translateZ(0px) !important; }
-
-    /* Controls Panel */
-    .controls-deck {
+    .ctrl-box {
       display: flex;
       gap: 10px;
       margin-bottom: 12px;
       flex-wrap: wrap;
       justify-content: center;
     }
-    .ctrl-btn {
+    .btn {
       background: var(--card);
       border: 1px solid var(--border);
       color: #fff;
-      padding: 9px 16px;
+      padding: 9px 18px;
       border-radius: 8px;
       font-size: 13px;
       font-weight: 700;
@@ -331,85 +311,117 @@
       gap: 6px;
       transition: all 0.3s;
     }
-    .ctrl-btn.active {
+    .btn.active {
       border-color: var(--orange);
-      background: rgba(255, 85, 0, 0.18);
+      background: rgba(255, 85, 0, 0.2);
       color: var(--orange);
     }
 
-    /* Slider Bar for 360 Rotation */
-    .slider-box {
+    .slider-row {
       width: 100%;
       max-width: 440px;
       display: flex;
       align-items: center;
       gap: 10px;
-      margin-bottom: 20px;
+      margin-bottom: 25px;
       font-family: 'Share Tech Mono', monospace;
       font-size: 11px;
       color: #94a3b8;
     }
-    .slider-box input {
+    .slider-row input {
       flex: 1;
       accent-color: var(--cyan);
     }
 
-    /* Hardware Cards */
-    .spec-grid {
-      width: 100%;
-      max-width: 520px;
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
-    }
-    .card {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 12px;
-      cursor: pointer;
-      transition: all 0.3s;
-    }
-    .card:hover, .card.active {
-      border-color: var(--cyan);
-      transform: translateY(-2px);
-      box-shadow: 0 4px 15px rgba(0, 240, 255, 0.15);
-    }
-    .card h3 {
-      font-size: 14px;
-      color: #fff;
-      display: flex;
-      justify-content: space-between;
-      margin-bottom: 4px;
-    }
-    .card h3 span { color: var(--cyan); font-size: 11px; }
-    .card p {
-      font-size: 12px;
-      color: #94a3b8;
-      line-height: 1.3;
-    }
-
-    /* Inspector */
     .inspector {
       width: 100%;
-      max-width: 520px;
-      background: #080e17;
+      max-width: 720px;
+      background: #070d14;
       border: 1px solid var(--cyan);
       border-radius: 12px;
-      padding: 15px;
-      margin-top: 15px;
+      padding: 16px;
+      margin-bottom: 25px;
+      box-shadow: 0 0 20px rgba(0, 240, 255, 0.1);
     }
     .insp-title {
       font-family: 'Orbitron', sans-serif;
-      font-size: 14px;
+      font-size: 15px;
       color: var(--cyan);
       font-weight: 800;
       margin-bottom: 6px;
     }
-    .insp-body {
+    .insp-text {
       font-size: 13px;
       color: #cbd5e1;
-      line-height: 1.4;
+      line-height: 1.5;
+    }
+
+    .sections-container {
+      width: 100%;
+      max-width: 720px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+    .sec-block {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      overflow: hidden;
+    }
+    .sec-header {
+      background: #0f1824;
+      padding: 12px 16px;
+      font-family: 'Orbitron', sans-serif;
+      font-size: 14px;
+      color: var(--orange);
+      letter-spacing: 1px;
+      display: flex;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--border);
+    }
+    .parts-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 8px;
+      padding: 12px;
+    }
+    .part-chip {
+      background: #080c12;
+      border: 1px solid #1a2535;
+      border-radius: 8px;
+      padding: 9px 12px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      transition: all 0.2s;
+    }
+    .part-chip:hover {
+      border-color: var(--cyan);
+      background: var(--card-hover);
+      transform: translateY(-2px);
+    }
+    .part-chip.active {
+      border-color: var(--orange);
+      background: rgba(255, 85, 0, 0.15);
+    }
+    .p-num {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 12px;
+      color: var(--gold);
+      font-weight: 700;
+      min-width: 20px;
+    }
+    .p-name {
+      font-size: 13px;
+      font-weight: 600;
+      color: #e2e8f0;
+      line-height: 1.2;
+    }
+    .p-role {
+      font-size: 11px;
+      color: #94a3b8;
     }
   </style>
 </head>
@@ -417,180 +429,242 @@
 
   <header>
     <div class="brand">YASHU<span>PUDO</span></div>
-    <div class="badge">LJ939 4G LTE</div>
+    <div class="badge">45 HARDWARE PARTS v2.0</div>
   </header>
 
-  <div class="title-area">
+  <div class="title-box">
     <h1 class="yashu-title">YASHU PUDO</h1>
-    <div class="sub-head">49MM ARCHITECTURE // 5-LAYER EXPLODED TEARDOWN</div>
+    <div class="yashu-sub">LJ939 4G SMARTWATCH // 45 PARTS TEARDOWN ARCHITECTURE</div>
   </div>
 
-  <!-- 3D Hardware Rig -->
   <div class="stage">
     <div class="watch-rig exploded" id="rig">
       
-      <!-- 1. Display Layer -->
-      <div class="layer layer-glass" onclick="selectHardware('display')">
-        <div class="display-matrix">
-          <div class="display-time">10:48</div>
-          <div class="display-tag">4G VOLTE AMOLED</div>
+      <div class="layer layer-screen" onclick="showInfo(25, 'Display Screen', 'AMOLED 2.02 HD curved glass display jo poora UI dikhata hai.')">
+        <div class="disp-screen">
+          <div class="disp-text">10:48</div>
+          <div class="disp-tag">4G VOLTE AMOLED</div>
         </div>
       </div>
 
-      <!-- 2. Rotating Camera -->
-      <div class="layer layer-cam" onclick="selectHardware('cam')">
+      <div class="layer layer-cam" onclick="showInfo(22, 'Camera', '180° Rotatable telescopic HD camera module.')">
         <div class="cam-lens">
-          <div class="cam-optic"></div>
+          <div class="cam-core"></div>
         </div>
       </div>
 
-      <!-- 3. Motherboard PCB -->
-      <div class="layer layer-pcb" onclick="selectHardware('motherboard')">
+      <div class="layer layer-pcb" onclick="showInfo(1, 'CPU / Processor', 'LJ939 quad-core network chip aur core processing engine.')">
         <div class="soc-chip">LJ939 4G SOC</div>
-        <div class="mic-sensor-chip">MIC + AUDIO IC</div>
+        <div class="pcb-details">MIC CIRCUIT + RF IC</div>
       </div>
 
-      <!-- 4. Battery & Motor -->
-      <div class="layer layer-battery" onclick="selectHardware('battery')">
-        <div class="batt-pack">
-          <span>800mAh Li-Po</span>
-          <span style="color: var(--gold); font-size: 8px; margin-top: 2px;">3.8V FAST CHARGE</span>
+      <div class="layer layer-battery" onclick="showInfo(34, 'Rechargeable Battery', '800mAh–1000mAh high-density lithium polymer power cell.')">
+        <div class="batt-block">
+          <span>1000mAh Battery</span>
+          <span style="color: var(--gold); font-size: 8px;">3.8V HIGH GAIN</span>
         </div>
-        <div class="vib-motor" title="Coin Vibration Motor"></div>
+        <div class="vib-motor" title="Vibration Motor"></div>
       </div>
 
-      <!-- 5. Titanium Base Chassis -->
-      <div class="layer layer-chassis" onclick="selectHardware('chassis')">
-        <div class="crown"></div>
-        <div class="sim-slot"></div>
-        <div class="hr-sensor">
-          <div class="hr-led"></div>
+      <div class="layer layer-chassis" onclick="showInfo(29, 'Heart Rate Sensor', 'Optical PPG heart rate and SpO2 blood oxygen sensor array.')">
+        <div class="crown-btn"></div>
+        <div class="sim-tray"></div>
+        <div class="hr-plate">
+          <div class="hr-optic"></div>
         </div>
       </div>
 
     </div>
   </div>
 
-  <!-- Interactive Controls -->
-  <div class="controls-deck">
-    <button class="ctrl-btn active" id="expBtn" onclick="toggleExplode()">
-      💥 Exploded (Alag Karein)
+  <div class="ctrl-box">
+    <button class="btn active" id="expBtn" onclick="toggleExplosion()">
+      💥 Exploded (अलग करें)
     </button>
-    <button class="ctrl-btn" id="spinBtn" onclick="toggleSpin()">
+    <button class="btn" id="spinBtn" onclick="toggle360Spin()">
       🔄 360° Auto Spin
     </button>
   </div>
 
-  <!-- Manual 360 Rotation Slider -->
-  <div class="slider-box">
+  <div class="slider-row">
     <span>0°</span>
-    <input type="range" id="angleRange" min="0" max="360" value="330" oninput="updateAngle(this.value)">
+    <input type="range" id="angleSlider" min="0" max="360" value="330" oninput="changeRigAngle(this.value)">
     <span>360°</span>
   </div>
 
-  <!-- Component Selectors -->
-  <div class="spec-grid">
-    <div class="card active" onclick="selectHardware('motherboard')">
-      <h3>Motherboard <span>LJ939 SOC</span></h3>
-      <p>4G LTE CPU, High-Gain Mic Line aur SIM card routing controller.</p>
-    </div>
-    <div class="card" onclick="selectHardware('cam')">
-      <h3>HD Camera <span>180° FLIP</span></h3>
-      <p>Rotatable lens jo front selfie aur rear video dono record karta hai.</p>
-    </div>
-    <div class="card" onclick="selectHardware('display')">
-      <h3>Touch Screen <span>2.02" HD</span></h3>
-      <p>Curved Sapphire-finish glass panel aur vibrant color matrix.</p>
-    </div>
-    <div class="card" onclick="selectHardware('battery')">
-      <h3>Battery & Motor <span>800mAh</span></h3>
-      <p>Li-Polymer cell aur haptic calling feedback coin vibration motor.</p>
-    </div>
+  <div class="inspector">
+    <div class="insp-title" id="boxTitle">Part #1: CPU / Processor</div>
+    <div class="insp-text" id="boxText">घड़ी का मुख्य दिमाग - यह 4G LTE नेटवर्क, ऑपरेटिंग सिस्टम, ऐप प्रोसेसिंग और ग्राफिक्स रेंडरिंग को पूरी तरह से संभालता है।</div>
   </div>
 
-  <!-- Detailed Hardware Specs -->
-  <div class="inspector">
-    <div class="insp-title" id="specHeading">MOTHERBOARD: LJ939 4G SOC</div>
-    <div class="insp-body" id="specBody">
-      Watch ka primary green PCB board. Isme 4G SIM connectivity chip, Bluetooth audio amplifier, aur electret condenser microphone soldering points lage hain jisse bina phone ke clear calls hoti hain.
+  <div class="sections-container">
+
+    <div class="sec-block">
+      <div class="sec-header"><span>1. मदरबोर्ड के 15 मुख्य पार्ट्स</span> <span>(1–15)</span></div>
+      <div class="parts-grid" id="gridMotherboard"></div>
     </div>
+
+    <div class="sec-block">
+      <div class="sec-header"><span>2. Left Side (बाईं तरफ)</span> <span>(16–19)</span></div>
+      <div class="parts-grid" id="gridLeft"></div>
+    </div>
+
+    <div class="sec-block">
+      <div class="sec-header"><span>3. Right Side (दाईं तरफ)</span> <span>(20–24)</span></div>
+      <div class="parts-grid" id="gridRight"></div>
+    </div>
+
+    <div class="sec-block">
+      <div class="sec-header"><span>4. ऊपर की तरफ (Top Side)</span> <span>(25–28)</span></div>
+      <div class="parts-grid" id="gridTop"></div>
+    </div>
+
+    <div class="sec-block">
+      <div class="sec-header"><span>5. नीचे की तरफ (Bottom Side)</span> <span>(29–33)</span></div>
+      <div class="parts-grid" id="gridBottom"></div>
+    </div>
+
+    <div class="sec-block">
+      <div class="sec-header"><span>6. घड़ी के अंदर के अन्य पार्ट्स</span> <span>(34–45)</span></div>
+      <div class="parts-grid" id="gridInternal"></div>
+    </div>
+
   </div>
 
   <script>
     const rig = document.getElementById('rig');
     const expBtn = document.getElementById('expBtn');
     const spinBtn = document.getElementById('spinBtn');
-    const angleRange = document.getElementById('angleRange');
+    const angleSlider = document.getElementById('angleSlider');
 
     let isExploded = true;
     let isSpinning = false;
-    let currentDeg = 330;
+    let currentAngle = 330;
 
-    function toggleExplode() {
+    function toggleExplosion() {
       isExploded = !isExploded;
-      if (isExploded) {
-        rig.classList.remove('collapsed');
+      if(isExploded) {
+        rig.classList.remove('assembled');
         rig.classList.add('exploded');
         expBtn.classList.add('active');
-        expBtn.innerHTML = "💥 Exploded (Alag Karein)";
+        expBtn.innerHTML = "💥 Exploded (अलग करें)";
       } else {
         rig.classList.remove('exploded');
-        rig.classList.add('collapsed');
+        rig.classList.add('assembled');
         expBtn.classList.remove('active');
-        expBtn.innerHTML = "📦 Assembled (Jodein)";
+        expBtn.innerHTML = "📦 Assembled (जोड़ें)";
       }
     }
 
-    function toggleSpin() {
+    function toggle360Spin() {
       isSpinning = !isSpinning;
-      if (isSpinning) {
+      if(isSpinning) {
         rig.classList.add('rotating');
         spinBtn.classList.add('active');
       } else {
         rig.classList.remove('rotating');
         spinBtn.classList.remove('active');
-        updateAngle(currentDeg);
+        changeRigAngle(currentAngle);
       }
     }
 
-    function updateAngle(val) {
-      currentDeg = val;
-      if (isSpinning) toggleSpin();
+    function changeRigAngle(val) {
+      currentAngle = val;
+      if(isSpinning) toggle360Spin();
       rig.style.transform = `rotateX(60deg) rotateZ(${val}deg)`;
     }
 
-    const techInfo = {
-      motherboard: {
-        title: "MOTHERBOARD: LJ939 4G SOC",
-        desc: "Watch ka main circuit board (PCB). Isme 4G SIM transceiver, memory chips, aur audio condenser mic input line integrated hai jo sound transmission control karti hai."
-      },
-      cam: {
-        title: "CAMERA: 180° ROTATING HD MODULE",
-        desc: "Rotating spindle par baitha HD camera lens. Is module ko upar ghuma kar video calling aur selfie ke liye kisi bhi angle par adjust kar sakte hain."
-      },
-      display: {
-        title: "DISPLAY: 2.02-INCH CURVED TOUCH PANEL",
-        desc: "High brightness touch panel jo ribbon FPC cable se seedha motherboard ke display connector se link hota hai."
-      },
-      battery: {
-        title: "POWER UNIT: 800mAh BATTERY & VIBRATION MOTOR",
-        desc: "Motherboard ke theek peeche 800mAh lithium battery pack aur incoming call alert ke liye coin vibration motor solder ki gayi hai."
-      },
-      chassis: {
-        title: "CHASSIS: 49MM TITANIUM CASING",
-        desc: "Orange digital crown, Nano SIM card slot, aur bottom side optical heart rate/PPG sensor ke sath military rugged casing."
-      }
-    };
+    const partsData = [
+      { num: 1, group: 'mb', name: 'CPU / Processor', role: 'घड़ी का दिमाग', desc: 'घड़ी का मुख्य प्रोसेसर जो सभी ऐप्स, 4G डेटा और सिस्टम फंक्शन्स को कंट्रोल करता है।' },
+      { num: 2, group: 'mb', name: 'RAM IC', role: 'ऐप चलाने की मेमोरी', desc: 'मल्टीटास्किंग और बैकग्राउंड ऐप्स को स्मूथली चलाने के लिए LPDDR RAM।' },
+      { num: 3, group: 'mb', name: 'ROM / Flash IC', role: 'डेटा और सॉफ्टवेयर स्टोर', desc: 'सिस्टम फाइल्स, Android OS और डाउनलोड किए गए मीडिया को स्टोर करने वाली 64GB स्टोरेज चिप।' },
+      { num: 4, group: 'mb', name: '4G LTE Modem IC', role: '4G नेटवर्क चलाना', desc: 'हाई-स्पीड 4G LTE डेटा ट्रांसमिशन और VoLTE कॉलिंग चिपसेट।' },
+      { num: 5, group: 'mb', name: 'RF Antenna Circuit', role: 'नेटवर्क सिग्नल पकड़ना', desc: 'नेटवर्क टावर से रेडियो फ्रीक्वेंसी सिग्नल्स को रिसीव और बूस्ट करने वाला सर्किट।' },
+      { num: 6, group: 'mb', name: 'SIM Connector', role: 'SIM लगाना', desc: 'नैनो-सिम कार्ड के गोल्ड पिन कॉन्टैक्ट्स को मदरबोर्ड से जोड़ने वाला कनेक्टर।' },
+      { num: 7, group: 'mb', name: 'PMIC (Power IC)', role: 'बिजली नियंत्रित करना', desc: 'पावर मैनेजमेंट चिप जो बैटरी वोल्टेज को सीपीयू, डिस्प्ले और सेंसर में सही मात्रा में बांटती है।' },
+      { num: 8, group: 'mb', name: 'Audio IC / Amplifier', role: 'स्पीकर की आवाज', desc: 'क्लियर और लाउड कॉलिंग व म्यूजिक के लिए ऑडियो सिग्नल एम्पलीफायर।' },
+      { num: 9, group: 'mb', name: 'Charging IC', role: 'बैटरी चार्ज करना', desc: 'मैग्नेटिक चार्जिंग पिन से पावर लेकर बैटरी को सेफ चार्जिंग साइकिल प्रदान करने वाली चिप।' },
+      { num: 10, group: 'mb', name: 'Display Connector', role: 'डिस्प्ले कनेक्शन', desc: 'स्क्रीन की FPC रिबन केबल को मदरबोर्ड से जोड़ने वाला सॉकेट।' },
+      { num: 11, group: 'mb', name: 'Touch Controller IC', role: 'टच चलाना', desc: 'टचस्क्रीन पर उंगलियों के जेस्चर और टच इनपुट को प्रोसेस करने वाली आईसी।' },
+      { num: 12, group: 'mb', name: 'Camera Connector', role: 'कैमरा कनेक्शन', desc: 'रोटेटिंग कैमरा मॉड्यूल को डेटा बस से जोड़ने वाला फ्लेक्स सॉकेट।' },
+      { num: 13, group: 'mb', name: 'Sensor IC', role: 'सेंसर का काम', desc: 'एक्सेलेरोमीटर, पेडोमीटर और स्टेप काउंटिंग डेटा को प्रोसेस करने वाली सेंसर चिप।' },
+      { num: 14, group: 'mb', name: 'Battery Connector', role: 'बैटरी कनेक्शन', desc: '3.8V लिथियम बैटरी के पॉजिटिव और नेगेटिव टर्मिनल्स का मदरबोर्ड पॉइंट।' },
+      { num: 15, group: 'mb', name: 'Microphone Circuit', role: 'आवाज रिकॉर्ड करना', desc: 'कॉलिंग और ऑडियो रिकॉर्डिंग के लिए लो-नॉइज़ माइक फिल्टर सर्किट।' },
 
-    function selectHardware(part) {
-      document.getElementById('specHeading').innerText = techInfo[part].title;
-      document.getElementById('specBody').innerText = techInfo[part].desc;
+      { num: 16, group: 'left', name: 'Speaker 🔊', role: 'ऑडियो आउटपुट', desc: 'कॉल और मीडिया प्लेबैक के लिए लाउड एकॉस्टिक स्पीकर यूनिट।' },
+      { num: 17, group: 'left', name: 'SIM Card Slot', role: 'सिम ट्रे', desc: 'घड़ी के बाईं तरफ लगा नैनो-सिम कार्ड ट्रे इंसर्शन स्लॉट।' },
+      { num: 18, group: 'left', name: 'Speaker Mesh / जाली', role: 'डस्ट प्रोटेक्शन', desc: 'स्पीकर चैंबर को धूल और पानी की बूंदों से बचाने वाली मेटल मेश।' },
+      { num: 19, group: 'left', name: 'Speaker Connection', role: 'ऑडियो वायरिंग', desc: 'मदरबोर्ड के ऑडियो एम्पलीफायर से स्पीकर कॉइल तक की वायरिंग लाइन।' },
 
-      document.querySelectorAll('.card').forEach(c => c.classList.remove('active'));
-      if(event && event.currentTarget) event.currentTarget.classList.add('active');
+      { num: 20, group: 'right', name: 'Power Button 🔘', role: 'ऑन/ऑफ बटन', desc: 'स्क्रीन वेक-अप और डिवाइस पावर ऑन/ऑफ के लिए मेटल रोटरी क्राउन बटन।' },
+      { num: 21, group: 'right', name: 'Microphone 🎤', role: 'माइक होल', desc: 'दाईं तरफ लगा माइक्रोफोन इनपुट पोर्ट जो आवाज़ कैप्चर करता है।' },
+      { num: 22, group: 'right', name: 'Camera 📷', role: 'एचडी कैमरा', desc: '180° फ्लिप मैकेनिज़्म वाला एचडी कैमरा लेंस।' },
+      { num: 23, group: 'right', name: 'Button Flex Cable', role: 'बटन सर्किट केबल', desc: 'पावर बटन क्लिक्स को मदरबोर्ड तक भेजने वाली रिबन केबल।' },
+      { num: 24, group: 'right', name: 'Camera Flex Cable', role: 'कैमरा डेटा केबल', desc: 'कैमरे के इमेज सिग्नल्स को मदरबोर्ड प्रोसेसर तक ले जाने वाली फ्लेक्स केबल।' },
 
-      if (!isExploded) toggleExplode();
+      { num: 25, group: 'top', name: 'Display Screen', role: 'AMOLED पैनल', desc: '2.02-इंच हाई-रेज़ोल्यूशन वाइब्रेंट डिस्प्ले पैनल।' },
+      { num: 26, group: 'top', name: 'Display Glass', role: 'प्रोटेक्टिव ग्लास', desc: 'स्क्रैच-रेसिस्टेंट 2.5D कर्व्ड सफायर फिनिश ग्लास।' },
+      { num: 27, group: 'top', name: 'Touch Panel', role: 'कैपेसिटिव टच', desc: 'स्मूथ मल्टी-टच और स्वाइप जेस्चर सेंसर लेयर।' },
+      { num: 28, group: 'top', name: 'Display Flex Cable', role: 'डिस्प्ले FPC', desc: 'डिस्प्ले और टच कंट्रोलर को मदरबोर्ड से जोड़ने वाली मुख्य रिबन।' },
+
+      { num: 29, group: 'bottom', name: 'Heart Rate Sensor', role: 'हार्ट रेट मॉनिटर', desc: 'धड़कन को रियल-टाइम ट्रैक करने वाला ऑप्टिकल फोटोप्लेथिस्मोग्राफी (PPG) सेंसर।' },
+      { num: 30, group: 'bottom', name: 'Blood Oxygen Sensor', role: 'SpO2 ट्रैकिंग', desc: 'खून में ऑक्सीजन सैचुरेशन स्तर को मापने वाला बायो-सेंसर।' },
+      { num: 31, group: 'bottom', name: 'Sensor LED', role: 'ग्रीन/रेड लाइट', desc: 'स्किन में ब्लड फ्लो को रीड करने के लिए नीचे जलने वाली ग्रीन और इन्फ्रारेड LED।' },
+      { num: 32, group: 'bottom', name: 'Sensor Receiver', role: 'फोटोडायोड', desc: 'त्वचा से रिफ्लेक्ट होकर वापस आने वाले लाइट सिग्नल्स को पढ़ने वाला डिटेक्टर।' },
+      { num: 33, group: 'bottom', name: 'Charging Contacts', role: 'मैग्नेटिक पिन (••••)', desc: 'मैग्नेटिक चार्जिंग केबल चिपकाने के लिए 4-पॉइंट गोल्ड प्लेटेड कॉन्टैक्ट्स।' },
+
+      { num: 34, group: 'internal', name: 'Rechargeable Battery', role: 'पावर बैकअप', desc: '800–1000mAh लिथियम पॉलीमर रिचार्जेबल बैटरी पैक।' },
+      { num: 35, group: 'internal', name: 'Vibration Motor', role: 'हैप्टिक फीडबैक', desc: 'कॉल और नोटिफिकेशन आने पर वाइब्रेशन देने वाली गोल कॉइन मोटर।' },
+      { num: 36, group: 'internal', name: '4G Antenna', role: 'सेलुलर सिग्नल', desc: '4G VoLTE कॉल्स और इंटरनेट डेटा के लिए इंटरनल एंटीना स्ट्रिप।' },
+      { num: 37, group: 'internal', name: 'Wi-Fi / BT Antenna', role: 'वायरलेस कनेक्टिविटी', desc: 'वाई-फाई और ब्लूटूथ पेयरिंग सिग्नल्स के लिए RF एंटीना।' },
+      { num: 38, group: 'internal', name: 'GPS Antenna', role: 'लोकेशन ट्रैकिंग', desc: 'सैटेलाइट नेविगेशन और लाइव मैप लोकेशन ट्रेसिंग एंटीना।' },
+      { num: 39, group: 'internal', name: 'Internal PCB', role: 'मल्टी-लेयर बोर्ड', desc: 'मदरबोर्ड का मुख्य मल्टी-लेयर कॉपर ट्रेस सर्किट फ्रेम।' },
+      { num: 40, group: 'internal', name: 'Crystal Oscillator', role: 'क्लॉक फ्रीक्वेंसी', desc: 'प्रोसेसर और सिस्टम टाइमिंग को बिल्कुल सटीक क्लॉक साइकिल देने वाला क्रिस्टल।' },
+      { num: 41, group: 'internal', name: 'Capacitors', role: 'वोल्टेज स्मूथिंग', desc: 'करंट के उतार-चढ़ाव को स्थिर रखने वाले SMD कैपेसिटर्स।' },
+      { num: 42, group: 'internal', name: 'Resistors', role: 'करंट कंट्रोल', desc: 'सर्किट के नाजुक कंपोनेंट्स में करंट को लिमिट करने वाले SMD रेसिस्टर्स।' },
+      { num: 43, group: 'internal', name: 'Inductors', role: 'पावर फिल्टर', desc: 'पावर सर्किट में इलेक्ट्रोमैग्नेटिक नॉइज़ फिल्टर करने वाले इंडक्टर्स।' },
+      { num: 44, group: 'internal', name: 'Connectors', role: 'FPC सॉकेट्स', desc: 'कैमरा, स्क्रीन और सेंसर केबल को मदरबोर्ड पर लॉक करने वाले क्लिप कनेक्टर्स।' },
+      { num: 45, group: 'internal', name: 'Power Switch Circuit', role: 'सर्किट कंट्रोल', desc: 'बैटरी से पावर कट-ऑफ और इमरजेंसी शटडाउन को मैनेज करने वाला सर्किट।' }
+    ];
+
+    function showInfo(num, name, desc) {
+      document.getElementById('boxTitle').innerText = `Part #${num}: ${name}`;
+      document.getElementById('boxText').innerText = desc;
+      
+      document.querySelectorAll('.part-chip').forEach(el => el.classList.remove('active'));
+      const activeEl = document.getElementById(`part-${num}`);
+      if(activeEl) activeEl.classList.add('active');
+
+      if(!isExploded) toggleExplosion();
     }
+
+    function renderParts() {
+      const grids = {
+        mb: document.getElementById('gridMotherboard'),
+        left: document.getElementById('gridLeft'),
+        right: document.getElementById('gridRight'),
+        top: document.getElementById('gridTop'),
+        bottom: document.getElementById('gridBottom'),
+        internal: document.getElementById('gridInternal')
+      };
+
+      partsData.forEach(p => {
+        const div = document.createElement('div');
+        div.className = 'part-chip';
+        div.id = `part-${p.num}`;
+        div.onclick = () => showInfo(p.num, p.name, p.desc);
+        div.innerHTML = `
+          <div class="p-num">${p.num}</div>
+          <div>
+            <div class="p-name">${p.name}</div>
+            <div class="p-role">${p.role}</div>
+          </div>
+        `;
+        if(grids[p.group]) grids[p.group].appendChild(div);
+      });
+    }
+
+    renderParts();
   </script>
 </body>
 </html>
