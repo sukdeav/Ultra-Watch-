@@ -3,524 +3,703 @@
 <html lang="hi">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>YASHU PUDO | 45 Parts 3D Teardown</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>YASHU PUDO - Realistic 3D Watch</title>
 
 <script type="importmap">
 {
-  "imports": {
-    "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
-    "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
-  }
+ "imports":{
+  "three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+  "three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+ }
 }
 </script>
 
 <style>
-*{box-sizing:border-box;margin:0;padding:0}
+*{box-sizing:border-box}
 body{
- background:#04070b;color:#e2e8f0;
- font-family:Arial,sans-serif;overflow-x:hidden
+ margin:0;background:#030810;color:#fff;
+ font-family:Arial,sans-serif
 }
 header{
- padding:17px;text-align:center;
- border-bottom:1px solid #16445b;
- background:#07121e
+ text-align:center;padding:18px;
+ background:#071522;border-bottom:1px solid #00dfff
 }
-h1{color:#00eaff;font-size:27px;letter-spacing:3px}
-header p{color:#94a3b8;font-size:12px;margin-top:6px}
-main{max-width:1200px;margin:auto;padding:15px}
-.toolbar{
- display:flex;gap:8px;justify-content:center;
- flex-wrap:wrap;margin:12px 0
+h1{margin:0;color:#00eaff;letter-spacing:4px}
+header p{font-size:12px;color:#9db6c9}
+main{max-width:1200px;margin:auto;padding:14px}
+.buttons{
+ display:flex;justify-content:center;gap:9px;
+ flex-wrap:wrap;margin:15px 0
 }
 button{
- background:#101c2b;color:white;border:1px solid #00bcd4;
- padding:11px 15px;border-radius:7px;
- cursor:pointer;font-weight:bold
+ padding:11px 15px;border-radius:8px;
+ border:1px solid #00dfff;background:#101e2d;
+ color:white;font-weight:bold;cursor:pointer
 }
-button:hover,button.active{
- background:#063c4a;color:#00f0ff;
- box-shadow:0 0 12px #00bcd455
+button.active,button:hover{
+ background:#064353;color:#00efff
 }
 #stage{
- width:100%;height:540px;
- background:radial-gradient(ellipse,#102a43,#04070b 72%);
- border:1px solid #123a50;border-radius:14px;
- overflow:hidden;position:relative
+ height:600px;max-width:100%;
+ border:1px solid #12516a;border-radius:15px;
+ overflow:hidden;
+ background:radial-gradient(ellipse,#102d45,#020711 75%)
 }
-#stage canvas{width:100%;height:100%;display:block}
-.hint{
- position:absolute;bottom:12px;left:0;right:0;
- text-align:center;color:#91b7c8;font-size:12px;
- pointer-events:none
-}
+#stage canvas{display:block;width:100%;height:100%}
 .controls{
- display:flex;gap:10px;align-items:center;
- justify-content:center;margin:15px 0;flex-wrap:wrap
+ display:flex;justify-content:center;gap:12px;
+ flex-wrap:wrap;margin:15px 0;color:#a8c7d8
 }
-input[type=range]{width:180px;accent-color:#00eaff}
-.panel{
- background:#09121e;border:1px solid #00bcd4;
- padding:15px;border-radius:10px;margin:15px 0
+input{accent-color:#00eaff;width:150px}
+.info{
+ padding:15px;background:#091522;
+ border:1px solid #00dfff;border-radius:10px;
+ margin:15px 0
 }
-.panel h2{font-size:17px;color:#00eaff;margin-bottom:8px}
-#partDesc{font-size:14px;line-height:1.7;color:#cbd5e1}
+.info h3{color:#00eaff;margin:0 0 8px}
+.info p{color:#cbd5e1;line-height:1.6;margin:0}
 #parts{
- display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));
- gap:8px;margin-top:12px
+ display:grid;
+ grid-template-columns:repeat(auto-fit,minmax(190px,1fr));
+ gap:8px
 }
 .part{
- background:#0d1724;border:1px solid #263749;
- padding:10px;border-radius:7px;text-align:left;
- display:flex;gap:10px;align-items:center;
- cursor:pointer;min-width:0
+ background:#0c1725;border:1px solid #26394a;
+ border-radius:7px;padding:11px;text-align:left;
+ color:white;cursor:pointer
 }
-.part:hover,.part.selected{
- border-color:#ff7900;background:#202331
-}
-.num{color:#ffb000;font-weight:bold;min-width:23px}
-.part small{display:block;color:#8da1b6;margin-top:4px}
-.group-title{
- color:#ff8a00;font-size:15px;
- margin:24px 0 8px;border-bottom:1px solid #263749;
- padding-bottom:8px
-}
-footer{text-align:center;padding:25px;color:#7893a8;font-size:12px}
+.part.selected{border-color:#ff8800;background:#292116}
+.part b{color:#ffb000;margin-right:8px}
+.part small{display:block;color:#91a9bd;margin-top:5px}
+h2{color:#ff9700;font-size:16px;margin-top:25px}
+footer{text-align:center;padding:25px;color:#7893a8}
 @media(max-width:600px){
- #stage{height:430px}
- h1{font-size:21px}
- button{padding:10px;font-size:12px}
+ #stage{height:480px}
+ h1{font-size:23px}
 }
 </style>
 </head>
 
 <body>
-
 <header>
- <h1>YASHU PUDO</h1>
- <p>LJ939 4G SMARTWATCH | 45 HARDWARE PARTS 3D ARCHITECTURE</p>
+<h1>YASHU PUDO</h1>
+<p>LJ939 4G SMARTWATCH | REALISTIC 3D TEARDOWN</p>
 </header>
 
 <main>
 
-<div class="toolbar">
- <button id="explodeBtn" class="active">💥 EXPLODE ALL</button>
- <button id="assembleBtn">📦 ASSEMBLE</button>
- <button id="spinBtn">🔄 360° AUTO SPIN</button>
- <button id="resetBtn">↻ RESET VIEW</button>
+<div class="buttons">
+<button id="explode" class="active">💥 EXPLODE ALL</button>
+<button id="assemble">📦 ASSEMBLE</button>
+<button id="spin">🔄 360° AUTO SPIN</button>
+<button id="reset">↻ RESET</button>
 </div>
 
-<div id="stage">
- <div class="hint">MOUSE DRAG = ROTATE | SCROLL = ZOOM | CLICK PART = DETAILS</div>
-</div>
+<div id="stage"></div>
 
 <div class="controls">
- <span>ROTATION</span>
- <input type="range" id="rotateSlider" min="0" max="360" value="35">
- <span id="angle">35°</span>
- <span>EXPLODE</span>
- <input type="range" id="explodeSlider" min="0" max="100" value="100">
- <span id="explodeValue">100%</span>
+<span>ROTATION</span>
+<input type="range" id="rotation" min="0" max="360" value="0">
+<span id="rotText">0°</span>
+<span>EXPLODE</span>
+<input type="range" id="explosion" min="0" max="100" value="100">
+<span id="expText">100%</span>
 </div>
 
-<div class="panel">
- <h2 id="partTitle">PART #1 : CPU / PROCESSOR</h2>
- <div id="partDesc">
- Smartwatch का मुख्य दिमाग। यह ऐप्स, नेटवर्क और सिस्टम प्रोसेसिंग को संभालता है।
- </div>
+<div class="info">
+<h3 id="title">PART #1 : CPU / PROCESSOR</h3>
+<p id="description">Smartwatch का मुख्य दिमाग।</p>
 </div>
 
-<div id="partsContainer"></div>
+<h2>45 HARDWARE COMPONENTS</h2>
+<div id="parts"></div>
 
 </main>
 
-<footer>
- YASHU PUDO © 2026 | 3D HARDWARE EXPLORER
- <br><br>
- Educational conceptual model. Actual hardware layout and specifications may vary.
-</footer>
+<footer>YASHU PUDO © 2026 | 3D SMARTWATCH ENGINEERING</footer>
 
 <script type="module">
 import * as THREE from 'three';
-import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import {OrbitControls} from 'three/addons/controls/OrbitControls.js';
 
-/* 45 HARDWARE PARTS */
+/* 45 PARTS DATABASE */
 
-const data = [
-['CPU / Processor','घड़ी का मुख्य प्रोसेसर और दिमाग।','Motherboard'],
-['RAM IC','ऐप्स चलाने के लिए मेमोरी।','Motherboard'],
-['ROM / Flash IC','सॉफ्टवेयर और डेटा स्टोरेज।','Motherboard'],
-['4G LTE Modem IC','4G नेटवर्क और VoLTE कनेक्शन।','Motherboard'],
-['RF Antenna Circuit','रेडियो फ्रीक्वेंसी सिग्नल सर्किट।','Motherboard'],
-['SIM Connector','SIM कार्ड कनेक्टर।','Motherboard'],
-['PMIC Power IC','बिजली और वोल्टेज कंट्रोल।','Motherboard'],
-['Audio IC / Amplifier','ऑडियो सिग्नल एम्पलीफायर।','Motherboard'],
-['Charging IC','बैटरी चार्जिंग कंट्रोल।','Motherboard'],
-['Display Connector','डिस्प्ले केबल कनेक्टर।','Motherboard'],
-['Touch Controller IC','टच स्क्रीन कंट्रोलर।','Motherboard'],
-['Camera Connector','कैमरा केबल कनेक्शन।','Motherboard'],
-['Sensor IC','सेंसर डेटा प्रोसेसिंग।','Motherboard'],
-['Battery Connector','बैटरी कनेक्शन पॉइंट।','Motherboard'],
-['Microphone Circuit','माइक्रोफोन सर्किट।','Motherboard'],
-['Speaker','कॉल और म्यूजिक की आवाज।','Left Side'],
-['SIM Card Slot','नैनो SIM कार्ड स्लॉट।','Left Side'],
-['Speaker Mesh','स्पीकर की सुरक्षा जाली।','Left Side'],
-['Speaker Connection','स्पीकर वायरिंग कनेक्शन।','Left Side'],
-['Power Button','घड़ी का पावर बटन।','Right Side'],
-['Microphone','आवाज रिकॉर्ड करने का पोर्ट।','Right Side'],
-['Camera','HD कैमरा मॉड्यूल।','Right Side'],
-['Button Flex Cable','बटन की फ्लेक्स केबल।','Right Side'],
-['Camera Flex Cable','कैमरा डेटा केबल।','Right Side'],
-['Display Screen','स्मार्टवॉच डिस्प्ले पैनल।','Top Side'],
-['Display Glass','डिस्प्ले प्रोटेक्टिव ग्लास।','Top Side'],
-['Touch Panel','कैपेसिटिव टच लेयर।','Top Side'],
-['Display Flex Cable','डिस्प्ले FPC केबल।','Top Side'],
-['Heart Rate Sensor','ऑप्टिकल हार्ट रेट सेंसर।','Bottom Side'],
-['Blood Oxygen Sensor','SpO2 सेंसर।','Bottom Side'],
-['Sensor LED','सेंसर की LED लाइट।','Bottom Side'],
-['Sensor Receiver','सेंसर लाइट रिसीवर।','Bottom Side'],
-['Charging Contacts','मैग्नेटिक चार्जिंग कॉन्टैक्ट।','Bottom Side'],
-['Rechargeable Battery','रिचार्जेबल बैटरी पैक।','Internal Parts'],
-['Vibration Motor','नोटिफिकेशन वाइब्रेशन मोटर।','Internal Parts'],
-['4G Antenna','4G सिग्नल एंटीना।','Internal Parts'],
-['Wi-Fi / BT Antenna','Wi-Fi और Bluetooth एंटीना।','Internal Parts'],
-['GPS Antenna','GPS लोकेशन एंटीना।','Internal Parts'],
-['Internal PCB','मल्टीलेयर सर्किट बोर्ड।','Internal Parts'],
-['Crystal Oscillator','सिस्टम क्लॉक सिग्नल।','Internal Parts'],
-['Capacitors','वोल्टेज फिल्टर कंपोनेंट।','Internal Parts'],
-['Resistors','करंट कंट्रोल कंपोनेंट।','Internal Parts'],
-['Inductors','पावर फिल्टर कंपोनेंट।','Internal Parts'],
-['Connectors','FPC और अन्य कनेक्टर्स।','Internal Parts'],
-['Power Switch Circuit','पावर कंट्रोल सर्किट।','Internal Parts']
+const data=[
+['CPU / Processor','घड़ी का मुख्य प्रोसेसर।'],
+['RAM IC','ऐप चलाने की मेमोरी।'],
+['ROM / Flash IC','डेटा स्टोरेज चिप।'],
+['4G LTE Modem','4G नेटवर्क चिप।'],
+['RF Antenna Circuit','नेटवर्क सिग्नल सर्किट।'],
+['SIM Connector','SIM कनेक्शन।'],
+['PMIC Power IC','पावर मैनेजमेंट।'],
+['Audio IC','ऑडियो एम्पलीफायर।'],
+['Charging IC','चार्जिंग कंट्रोल।'],
+['Display Connector','डिस्प्ले कनेक्टर।'],
+['Touch Controller','टच कंट्रोलर।'],
+['Camera Connector','कैमरा कनेक्टर।'],
+['Sensor IC','सेंसर प्रोसेसर।'],
+['Battery Connector','बैटरी कनेक्शन।'],
+['Microphone Circuit','माइक सर्किट।'],
+['Speaker','आवाज देने वाला स्पीकर।'],
+['SIM Card Slot','SIM ट्रे।'],
+['Speaker Mesh','स्पीकर जाली।'],
+['Speaker Connection','स्पीकर वायरिंग।'],
+['Power Button','पावर बटन।'],
+['Microphone','माइक पोर्ट।'],
+['Camera','HD कैमरा।'],
+['Button Flex Cable','बटन केबल।'],
+['Camera Flex Cable','कैमरा केबल।'],
+['Display Screen','AMOLED स्क्रीन।'],
+['Display Glass','प्रोटेक्टिव ग्लास।'],
+['Touch Panel','टच लेयर।'],
+['Display Flex Cable','डिस्प्ले केबल।'],
+['Heart Rate Sensor','हार्ट रेट सेंसर।'],
+['Blood Oxygen Sensor','SpO2 सेंसर।'],
+['Sensor LED','सेंसर लाइट।'],
+['Sensor Receiver','सेंसर रिसीवर।'],
+['Charging Contacts','चार्जिंग पिन।'],
+['Rechargeable Battery','बैटरी पैक।'],
+['Vibration Motor','वाइब्रेशन मोटर।'],
+['4G Antenna','4G एंटीना।'],
+['Wi-Fi / BT Antenna','Wi-Fi और Bluetooth एंटीना।'],
+['GPS Antenna','GPS एंटीना।'],
+['Internal PCB','मदरबोर्ड।'],
+['Crystal Oscillator','क्लॉक कंपोनेंट।'],
+['Capacitors','कैपेसिटर।'],
+['Resistors','रेसिस्टर।'],
+['Inductors','इंडक्टर।'],
+['Connectors','FPC कनेक्टर।'],
+['Power Switch Circuit','पावर कंट्रोल।']
 ];
 
-/* THREE JS SCENE */
+/* SCENE */
 
-const stage = document.getElementById('stage');
+const stage=document.getElementById('stage');
+const scene=new THREE.Scene();
+scene.background=new THREE.Color(0x030810);
 
-const scene = new THREE.Scene();
-scene.background = new THREE.Color('#040a12');
-
-const camera = new THREE.PerspectiveCamera(
- 45, stage.clientWidth/stage.clientHeight,0.1,100
+const camera=new THREE.PerspectiveCamera(
+ 40,stage.clientWidth/stage.clientHeight,0.1,100
 );
-camera.position.set(8,9,13);
+camera.position.set(9,10,13);
 
-const renderer = new THREE.WebGLRenderer({antialias:true});
+const renderer=new THREE.WebGLRenderer({antialias:true});
 renderer.setPixelRatio(Math.min(devicePixelRatio,2));
 renderer.setSize(stage.clientWidth,stage.clientHeight);
-renderer.outputColorSpace = THREE.SRGBColorSpace;
+renderer.outputColorSpace=THREE.SRGBColorSpace;
+renderer.toneMapping=THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure=1.25;
 stage.appendChild(renderer.domElement);
 
-const controls = new OrbitControls(camera,renderer.domElement);
-controls.enableDamping = true;
-controls.minDistance = 6;
-controls.maxDistance = 25;
+const orbit=new OrbitControls(camera,renderer.domElement);
+orbit.enableDamping=true;
+orbit.minDistance=8;
+orbit.maxDistance=25;
 
-scene.add(new THREE.AmbientLight(0xffffff,1.7));
+scene.add(new THREE.HemisphereLight(0x9bdfff,0x17202d,2));
 
-const light1 = new THREE.PointLight(0x00eaff,120);
-light1.position.set(5,8,8);
-scene.add(light1);
+const light=new THREE.DirectionalLight(0xffffff,3);
+light.position.set(5,10,8);
+scene.add(light);
 
-const light2 = new THREE.PointLight(0xff5500,90);
-light2.position.set(-6,-2,-5);
-scene.add(light2);
+const blue=new THREE.PointLight(0x00cfff,90);
+blue.position.set(-6,4,5);
+scene.add(blue);
 
-const light3 = new THREE.PointLight(0xffffff,70);
-light3.position.set(0,7,-7);
-scene.add(light3);
+const orange=new THREE.PointLight(0xff6400,65);
+orange.position.set(5,0,-6);
+scene.add(orange);
 
-/* FLOOR */
+const grid=new THREE.GridHelper(30,30,0x12445d,0x10283b);
+grid.position.y=-4;
+scene.add(grid);
 
-const floor = new THREE.GridHelper(30,30,0x12435b,0x102638);
-floor.position.y=-3.2;
-scene.add(floor);
+/* MAIN WATCH */
 
-/* WATCH GROUP */
-
-const watch = new THREE.Group();
+const watch=new THREE.Group();
 scene.add(watch);
 
-/* WATCH CASE - DECORATIVE SHELL */
+const parts=[];
 
-const shell = new THREE.Mesh(
- new THREE.BoxGeometry(4.8,0.55,5.8),
- new THREE.MeshStandardMaterial({
-  color:0x26384b,metalness:0.85,roughness:0.25
- })
-);
-shell.position.y=-0.2;
-watch.add(shell);
+/* MATERIALS */
 
-/* 45 INDIVIDUAL COMPONENTS */
-
-const components=[];
-const colors=[
- 0xffa000,0x00c8ff,0x10b981,0x64748b,
- 0xff5500,0x8b5cf6,0xd1d5db
-];
-
-data.forEach((item,i)=>{
-
- const row=Math.floor(i/9);
- const col=i%9;
-
- const x=(col-4)*0.43;
- const z=(row-2)*0.85;
-
- let geo;
-
- if(i===24 || i===25){
-  geo=new THREE.BoxGeometry(3.8,0.12,4.7);
- }else if(i===33){
-  geo=new THREE.BoxGeometry(3.2,0.65,3.8);
- }else if([28,29,30,31].includes(i)){
-  geo=new THREE.CylinderGeometry(0.28,0.28,0.15,24);
- }else if(i===21){
-  geo=new THREE.CylinderGeometry(0.4,0.4,0.45,32);
- }else{
-  geo=new THREE.BoxGeometry(
-   i<15?0.35:0.28,
-   i<15?0.2:0.12,
-   i<15?0.35:0.28
-  );
- }
-
- const color=colors[i%colors.length];
-
- const material=new THREE.MeshStandardMaterial({
-  color:color,metalness:0.55,roughness:0.3,
-  emissive:color,emissiveIntensity:0.08
- });
-
- const mesh=new THREE.Mesh(geo,material);
-
- const baseY=0.5+(i%3)*0.12;
-
- const base=new THREE.Vector3(x,baseY,z);
-
- // Spread parts into individual exploded layers
- const layer=(Math.floor(i/9)-2)*1.65;
- const angle=(i/45)*Math.PI*2;
-
- const exploded=new THREE.Vector3(
-  x+Math.cos(angle)*1.0,
-  baseY+layer,
-  z+Math.sin(angle)*0.8
- );
-
- mesh.position.copy(exploded);
- mesh.userData.index=i;
- mesh.userData.base=base;
- mesh.userData.exploded=exploded;
-
- watch.add(mesh);
- components.push(mesh);
-
- // Number marker
- const marker=new THREE.Mesh(
-  new THREE.SphereGeometry(0.055,8,8),
-  new THREE.MeshBasicMaterial({color:0x00eaff})
- );
- marker.position.copy(exploded);
- marker.userData.index=i;
- watch.add(marker);
+const steel=new THREE.MeshStandardMaterial({
+ color:0x526273,metalness:0.92,roughness:0.2
+});
+const black=new THREE.MeshStandardMaterial({
+ color:0x101722,metalness:0.7,roughness:0.22
+});
+const glass=new THREE.MeshPhysicalMaterial({
+ color:0x061522,metalness:0.35,roughness:0.08,
+ clearcoat:1,clearcoatRoughness:0.04
+});
+const rubber=new THREE.MeshStandardMaterial({
+ color:0x10151d,roughness:0.8
+});
+const gold=new THREE.MeshStandardMaterial({
+ color:0xe6a52d,metalness:0.9,roughness:0.2
+});
+const green=new THREE.MeshStandardMaterial({
+ color:0x087a4b,metalness:0.5,roughness:0.35
 });
 
-/* SELECTION */
+/* ROUNDED RECTANGLE */
 
-let selected=-1;
+function roundedPlate(w,h,depth,r,material){
+ const s=new THREE.Shape();
+ s.moveTo(-w/2+r,-h/2);
+ s.lineTo(w/2-r,-h/2);
+ s.quadraticCurveTo(w/2,-h/2,w/2,-h/2+r);
+ s.lineTo(w/2,h/2-r);
+ s.quadraticCurveTo(w/2,h/2,w/2-r,h/2);
+ s.lineTo(-w/2+r,h/2);
+ s.quadraticCurveTo(-w/2,h/2,-w/2,h/2-r);
+ s.lineTo(-w/2,-h/2+r);
+ s.quadraticCurveTo(-w/2,-h/2,-w/2+r,-h/2);
+
+ const g=new THREE.ExtrudeGeometry(s,{
+  depth:depth,bevelEnabled:true,
+  bevelSegments:3,steps:1,
+  bevelSize:0.045,bevelThickness:0.045
+ });
+ g.rotateX(-Math.PI/2);
+ return new THREE.Mesh(g,material);
+}
+
+/* BASE CASE */
+
+const caseBody=roundedPlate(4.5,5.5,0.65,0.7,steel);
+caseBody.position.y=-0.35;
+watch.add(caseBody);
+
+/* BLACK BEZEL */
+
+const bezel=roundedPlate(4.22,5.22,0.15,0.62,black);
+bezel.position.y=0.32;
+watch.add(bezel);
+
+/* STRAPS */
+
+function makeStrap(z,rotation=0){
+ const strap=roundedPlate(2.55,3.25,0.42,0.85,rubber);
+ strap.position.set(0,-0.3,z);
+ strap.rotation.y=rotation;
+ watch.add(strap);
+
+ // Strap holes
+ for(let i=0;i<5;i++){
+  const hole=new THREE.Mesh(
+   new THREE.CylinderGeometry(0.09,0.09,0.08,20),black
+  );
+  hole.rotation.x=Math.PI/2;
+  hole.position.set(0,-0.03,z+(z>0?0.9+i*0.35:-0.9-i*0.35));
+  watch.add(hole);
+ }
+}
+makeStrap(-4.2);
+makeStrap(4.2);
+
+/* SCREEN */
+
+const screen=roundedPlate(3.72,4.65,0.08,0.48,glass);
+screen.position.y=0.53;
+watch.add(screen);
+
+/* SCREEN INNER LIGHT */
+
+const screenFace=roundedPlate(3.48,4.4,0.025,0.4,
+ new THREE.MeshStandardMaterial({
+  color:0x07182d,metalness:0.2,roughness:0.12,
+  emissive:0x071c3b,emissiveIntensity:0.6
+ })
+);
+screenFace.position.y=0.64;
+watch.add(screenFace);
+
+/* WATCH DISPLAY MARKINGS */
+
+function addText(text,x,z,size,color){
+ const canvas=document.createElement('canvas');
+ canvas.width=512;canvas.height=128;
+ const ctx=canvas.getContext('2d');
+ ctx.fillStyle=color;
+ ctx.font='bold 75px Arial';
+ ctx.textAlign='center';
+ ctx.fillText(text,256,90);
+
+ const texture=new THREE.CanvasTexture(canvas);
+ const mesh=new THREE.Mesh(
+  new THREE.PlaneGeometry(size,size*0.25),
+  new THREE.MeshBasicMaterial({map:texture,transparent:true})
+ );
+ mesh.rotation.x=-Math.PI/2;
+ mesh.position.set(x,0.69,z);
+ watch.add(mesh);
+}
+addText('10:48',0,-0.45,2.4,'#ffffff');
+addText('4G  VOLTE',0,0.45,1.7,'#00eaff');
+
+/* SIDE CROWN */
+
+function cylinderAt(position,radius,length,material,axis='x'){
+ const m=new THREE.Mesh(
+  new THREE.CylinderGeometry(radius,radius,length,32),
+  material
+ );
+ if(axis==='x')m.rotation.z=Math.PI/2;
+ if(axis==='z')m.rotation.x=Math.PI/2;
+ m.position.set(...position);
+ watch.add(m);
+ return m;
+}
+
+cylinderAt([2.32,0,-0.3],0.34,0.45,gold);
+cylinderAt([2.55,0,-0.3],0.23,0.12,black);
+
+const buttonSide=cylinderAt([2.3,-0.15,0.7],0.17,0.4,steel);
+
+/* BACK COVER AND SENSOR */
+
+const back=roundedPlate(3.8,4.8,0.15,0.6,black);
+back.position.y=-0.85;
+watch.add(back);
+
+const sensorRing=new THREE.Mesh(
+ new THREE.CylinderGeometry(0.85,0.85,0.12,48),
+ gold
+);
+sensorRing.position.set(0,-0.98,0);
+watch.add(sensorRing);
+
+const sensorGlass=new THREE.Mesh(
+ new THREE.CylinderGeometry(0.68,0.68,0.14,48),
+ new THREE.MeshPhysicalMaterial({
+  color:0x06141c,metalness:0.3,roughness:0.1
+ })
+);
+sensorGlass.position.set(0,-1.08,0);
+watch.add(sensorGlass);
+
+for(let i=0;i<4;i++){
+ const led=new THREE.Mesh(
+  new THREE.CircleGeometry(0.12,24),
+  new THREE.MeshBasicMaterial({color:0x00ff66})
+ );
+ led.rotation.x=-Math.PI/2;
+ const a=i*Math.PI/2;
+ led.position.set(Math.cos(a)*0.42,-1.17,Math.sin(a)*0.42);
+ watch.add(led);
+}
+
+/* COMPONENT HELPER */
+
+function addComponent(index,geometry,material,position,explodeY){
+ const mesh=new THREE.Mesh(geometry,material);
+ mesh.position.set(...position);
+ mesh.userData.index=index;
+ mesh.userData.base=mesh.position.clone();
+ mesh.userData.explodeY=explodeY;
+ watch.add(mesh);
+ parts[index]=mesh;
+ return mesh;
+}
+
+function box(w,h,d,material){
+ return new THREE.BoxGeometry(w,h,d);
+}
+
+function chip(index,x,z,w=0.36,d=0.36){
+ const m=addComponent(
+  index,box(w,0.14,d),
+  index===0?gold:black,
+  [x,0.78,z],1.8+(index%4)*0.35
+ );
+ return m;
+}
+
+/* 1–15 MOTHERBOARD CHIPS */
+
+const pcb=roundedPlate(3.6,4.4,0.13,0.4,green);
+pcb.position.y=0.84;
+watch.add(pcb);
+
+for(let i=0;i<15;i++){
+ const x=-1.25+(i%4)*0.8;
+ const z=-1.45+Math.floor(i/4)*0.85;
+ chip(i,x,z,i===0?0.65:0.35,i===0?0.65:0.35);
+}
+
+/* 16 SPEAKER */
+
+addComponent(15,new THREE.CylinderGeometry(0.48,0.48,0.16,40),
+ steel,[-1.15,0.2,-1.6],-1.8);
+
+/* 17 SIM SLOT */
+
+addComponent(16,box(0.85,0.13,0.4),gold,
+ [-1.1,0.2,-2.15],-1.4);
+
+/* 18 MESH */
+
+addComponent(17,new THREE.CylinderGeometry(0.2,0.2,0.05,24),
+ black,[-1.15,0.28,-1.6],-1.2);
+
+/* 19 CONNECTION */
+
+addComponent(18,box(0.45,0.12,0.12),gold,
+ [-0.6,0.8,-1.5],1.5);
+
+/* 20 POWER BUTTON */
+
+addComponent(19,new THREE.CylinderGeometry(0.2,0.2,0.3,32),
+ gold,[2.45,0,-0.3],2);
+
+/* 21 MICROPHONE */
+
+addComponent(20,new THREE.CylinderGeometry(0.12,0.12,0.1,20),
+ black,[1.9,0,1.9],1.2);
+
+/* 22 CAMERA LENS */
+
+addComponent(21,new THREE.CylinderGeometry(0.43,0.43,0.22,40),
+ steel,[0.8,0.85,-2.05],2.5);
+
+const lens=new THREE.Mesh(
+ new THREE.CylinderGeometry(0.28,0.28,0.24,32),
+ new THREE.MeshPhysicalMaterial({
+  color:0x032f55,metalness:0.8,roughness:0.05
+ })
+);
+lens.position.set(0.8,1.04,-2.05);
+watch.add(lens);
+
+/* 23-24 FLEX CABLES */
+
+addComponent(22,box(0.7,0.05,0.3),gold,
+ [1.2,0.9,-1.5],1.4);
+
+addComponent(23,box(0.6,0.05,0.25),gold,
+ [0.6,0.9,-1.7],1.7);
+
+/* 25-28 DISPLAY LAYERS */
+
+addComponent(24,roundedPlate(3.72,4.65,0.05,0.48,
+ new THREE.MeshStandardMaterial({
+  color:0x102a50,metalness:0.2,roughness:0.1,
+  emissive:0x06152c
+ })),[0,0,0],[]);
+
+/* Replace display layer position */
+parts[24].position.set(0,0.72,0);
+parts[24].userData.base=parts[24].position.clone();
+parts[24].userData.explodeY=3.8;
+
+addComponent(25,roundedPlate(3.85,4.8,0.04,0.5,glass),
+ [0,0.81,0],[]);
+parts[25].userData.explodeY=4.8;
+
+addComponent(26,roundedPlate(3.65,4.55,0.04,0.45,
+ new THREE.MeshStandardMaterial({color:0x175e83,transparent:true,opacity:0.55})),
+ [0,0.77,0],[]);
+parts[26].userData.explodeY=4.3;
+
+addComponent(27,box(0.55,0.08,0.18),gold,
+ [1.2,0.8,2.0],2.7);
+
+/* 29-33 BACK SENSORS */
+
+for(let i=28;i<=31;i++){
+ const a=(i-28)*Math.PI/2;
+ addComponent(i,new THREE.CylinderGeometry(0.17,0.17,0.13,28),
+ i===30?new THREE.MeshBasicMaterial({color:0x00ff55}):gold,
+ [Math.cos(a)*0.42,-1.22,Math.sin(a)*0.42],-2.4-i*0.02);
+}
+
+for(let i=0;i<4;i++){
+ addComponent(32,new THREE.CylinderGeometry(0.08,0.08,0.12,20),
+ gold,[-0.6+i*0.4,-1.12,2.25],-1.8);
+ if(i<3) parts[32].userData.base=parts[32].position.clone();
+}
+
+/* 34 BATTERY */
+
+addComponent(33,roundedPlate(3.0,3.8,0.48,0.35,
+ new THREE.MeshStandardMaterial({
+  color:0x263445,metalness:0.7,roughness:0.3
+ })),
+ [0,-0.15,0],-3.6);
+
+/* 35 VIBRATION MOTOR */
+
+addComponent(34,new THREE.CylinderGeometry(0.27,0.27,0.22,32),
+ steel,[1.15,-0.65,1.45],-2.7);
+
+/* 36-38 ANTENNAS */
+
+for(let i=35;i<=37;i++){
+ addComponent(i,box(2.1,0.04,0.13),
+ gold,[-0.8,0.9,-1.7+(i-35)*0.35],1.7+(i-35)*0.4);
+}
+
+/* 39 PCB */
+
+addComponent(38,roundedPlate(3.5,4.3,0.1,0.3,green),
+ [0,0.95,0],2.8);
+
+/* 40-45 ELECTRONIC COMPONENTS */
+
+for(let i=39;i<=44;i++){
+ const x=-1.2+((i-39)%3)*1.15;
+ const z=0.3+Math.floor((i-39)/3)*0.8;
+
+ addComponent(i,box(0.24,0.13,0.25),
+ i%2?gold:black,[x,1.02,z],1.8+(i%3)*0.5);
+}
+
+/* EXPLOSION ENGINE */
+
+let explosion=1;
+let spinning=false;
+let selected=0;
+
+function setExplosion(value){
+ explosion=value/100;
+
+ parts.forEach(mesh=>{
+  if(!mesh)return;
+
+  const base=mesh.userData.base;
+  const distance=mesh.userData.explodeY;
+
+  mesh.position.set(
+   base.x,
+   base.y+distance*explosion,
+   base.z
+  );
+ });
+
+ document.getElementById('expText').textContent=value+'%';
+ document.getElementById('explosion').value=value;
+ document.getElementById('explode').classList.toggle('active',value>0);
+ document.getElementById('assemble').classList.toggle('active',value===0);
+}
+
+document.getElementById('explode').onclick=()=>setExplosion(100);
+document.getElementById('assemble').onclick=()=>setExplosion(0);
+
+document.getElementById('explosion').oninput=e=>{
+ setExplosion(+e.target.value);
+};
+
+/* SELECT COMPONENT */
 
 function selectPart(index){
  selected=index;
 
- const item=data[index];
+ document.getElementById('title').textContent=
+ 'PART #'+(index+1)+' : '+data[index][0];
 
- document.getElementById('partTitle').textContent=
- `PART #${index+1} : ${item[0]}`;
-
- document.getElementById('partDesc').textContent=
- item[1]+' Category: '+item[2];
-
- components.forEach((mesh,i)=>{
-  mesh.material.emissiveIntensity=
-   i===index?0.8:0.08;
- });
+ document.getElementById('description').textContent=
+ data[index][1];
 
  document.querySelectorAll('.part').forEach((el,i)=>{
   el.classList.toggle('selected',i===index);
  });
 
- if(!exploded){
-  setExplosion(100);
-  document.getElementById('explodeSlider').value=100;
- }
+ parts.forEach((m,i)=>{
+  if(m)m.material.emissiveIntensity=i===index?0.65:0;
+ });
+
+ if(explosion===0)setExplosion(100);
 }
 
-/* CLICK 3D COMPONENT */
+/* PART LIST */
+
+const list=document.getElementById('parts');
+
+data.forEach((item,i)=>{
+ const btn=document.createElement('button');
+ btn.className='part';
+ btn.innerHTML=`<b>${i+1}</b>${item[0]}<small>${item[1]}</small>`;
+ btn.onclick=()=>selectPart(i);
+ list.appendChild(btn);
+});
+
+/* MOUSE SELECTION */
 
 const raycaster=new THREE.Raycaster();
 const pointer=new THREE.Vector2();
 
-renderer.domElement.addEventListener('pointerdown',e=>{
+renderer.domElement.addEventListener('click',e=>{
  const rect=renderer.domElement.getBoundingClientRect();
-
  pointer.x=((e.clientX-rect.left)/rect.width)*2-1;
  pointer.y=-((e.clientY-rect.top)/rect.height)*2+1;
 
  raycaster.setFromCamera(pointer,camera);
-
- const hits=raycaster.intersectObjects(components);
+ const hits=raycaster.intersectObjects(parts.filter(Boolean));
 
  if(hits.length){
   selectPart(hits[0].object.userData.index);
  }
 });
 
-/* EXPLODE / ASSEMBLE */
+/* SPIN */
 
-let exploded=true;
-
-function setExplosion(value){
- const amount=value/100;
- exploded=amount>0;
-
- components.forEach(mesh=>{
-  const b=mesh.userData.base;
-  const e=mesh.userData.exploded;
-
-  mesh.position.lerpVectors(b,e,amount);
- });
-
- // Keep the markers attached to their components
- watch.children.forEach(obj=>{
-  if(obj.userData.index!==undefined &&
-     obj.geometry.type==='SphereGeometry'){
-   const mesh=components[obj.userData.index];
-   obj.position.copy(mesh.position);
-  }
- });
-
- document.getElementById('explodeSlider').value=value;
- document.getElementById('explodeValue').textContent=value+'%';
-
- document.getElementById('explodeBtn').classList.toggle(
-  'active',amount>0
- );
- document.getElementById('assembleBtn').classList.toggle(
-  'active',amount===0
- );
-}
-
-document.getElementById('explodeBtn').onclick=()=>{
- setExplosion(100);
-};
-
-document.getElementById('assembleBtn').onclick=()=>{
- setExplosion(0);
-};
-
-document.getElementById('explodeSlider').oninput=e=>{
- setExplosion(Number(e.target.value));
-};
-
-/* 360 AUTO SPIN */
-
-let spinning=false;
-
-document.getElementById('spinBtn').onclick=()=>{
+document.getElementById('spin').onclick=()=>{
  spinning=!spinning;
- document.getElementById('spinBtn').classList.toggle('active',spinning);
- document.getElementById('spinBtn').textContent=
+ document.getElementById('spin').classList.toggle('active',spinning);
+ document.getElementById('spin').textContent=
  spinning?'⏸ STOP SPIN':'🔄 360° AUTO SPIN';
 };
 
 /* MANUAL ROTATION */
 
-document.getElementById('rotateSlider').oninput=e=>{
+document.getElementById('rotation').oninput=e=>{
  watch.rotation.y=Number(e.target.value)*Math.PI/180;
- document.getElementById('angle').textContent=e.target.value+'°';
+ document.getElementById('rotText').textContent=e.target.value+'°';
 };
 
-document.getElementById('resetBtn').onclick=()=>{
+/* RESET */
+
+document.getElementById('reset').onclick=()=>{
+ spinning=false;
  watch.rotation.set(0,0,0);
- camera.position.set(8,9,13);
- controls.target.set(0,0,0);
- controls.update();
+ camera.position.set(9,10,13);
+ orbit.target.set(0,0,0);
+ orbit.update();
 
- document.getElementById('rotateSlider').value=0;
- document.getElementById('angle').textContent='0°';
+ document.getElementById('rotation').value=0;
+ document.getElementById('rotText').textContent='0°';
+ document.getElementById('spin').textContent='🔄 360° AUTO SPIN';
+ document.getElementById('spin').classList.remove('active');
+
  setExplosion(100);
+ selectPart(0);
 };
 
-/* CREATE ALL 45 PART LIST */
-
-const container=document.getElementById('partsContainer');
-
-const groups=[
- 'Motherboard','Left Side','Right Side',
- 'Top Side','Bottom Side','Internal Parts'
-];
-
-groups.forEach(group=>{
-
- const heading=document.createElement('h3');
- heading.className='group-title';
- heading.textContent=group;
- container.appendChild(heading);
-
- const grid=document.createElement('div');
- grid.id='parts';
- container.appendChild(grid);
-
- data.forEach((item,i)=>{
-  if(item[2]!==group)return;
-
-  const button=document.createElement('button');
-  button.className='part';
-
-  button.innerHTML=`
-   <span class="num">${i+1}</span>
-   <span>${item[0]}<small>${item[1]}</small></span>
-  `;
-
-  button.onclick=()=>selectPart(i);
-  grid.appendChild(button);
- });
-});
-
-/* ANIMATION LOOP */
+/* LOOP */
 
 function animate(){
  requestAnimationFrame(animate);
 
- if(spinning){
-  watch.rotation.y+=0.007;
- }
+ if(spinning)watch.rotation.y+=0.006;
 
- controls.update();
+ orbit.update();
  renderer.render(scene,camera);
 }
-
 animate();
 
-/* RESPONSIVE */
+/* RESIZE */
 
 window.addEventListener('resize',()=>{
- const w=stage.clientWidth;
- const h=stage.clientHeight;
-
- camera.aspect=w/h;
+ camera.aspect=stage.clientWidth/stage.clientHeight;
  camera.updateProjectionMatrix();
-
- renderer.setSize(w,h);
+ renderer.setSize(stage.clientWidth,stage.clientHeight);
 });
 
-/* INITIAL INFO */
-
-selectPart(0);
 setExplosion(100);
+selectPart(0);
 
 </script>
 </body>
