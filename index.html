@@ -1,973 +1,887 @@
-<!DOCTYPE html>
-<html lang="hi">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>YASHU PUDO - 45 Hardware Parts Teardown</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;800;900&family=Rajdhani:wght@600;700;800&family=Share+Tech+Mono&display=swap" rel="stylesheet">
-  <style>
-    :root {
-      --bg: #030811;
-      --card-bg: rgba(6, 17, 30, 0.92);
-      --border-cyan: #00d8f6;
-      --border-dim: #13334d;
-      --orange: #ff6600;
-      --gold: #ffb703;
-      --cyan: #00f0ff;
-      --green: #10b981;
-      --text: #e2e8f0;
-    }
+import React, { useEffect, useRef, useState, useCallback } from 'react';
+import * as THREE from 'three';
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
+import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js';
+import { PARTS_DATA } from '../data/partsData.ts';
+import { playSound } from '../utils/audio.ts';
+import { Camera, ZoomIn, ZoomOut, RefreshCw, Tag } from 'lucide-react';
 
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      -webkit-tap-highlight-color: transparent;
-      user-select: none;
-    }
+interface WatchThreeCanvasProps {
+  activePartNum: number;
+  onSelectPart: (num: number) => void;
+  isExploded: boolean;
+  explosionFactor: number;
+  isAutoSpinning: boolean;
+  showLabels: boolean;
+  labelMode?: 'all' | 'selected' | 'none';
+  onToggleLabels?: () => void;
+  language: 'hi' | 'en';
+}
 
-    body {
-      background: radial-gradient(circle at 50% 10%, #0c2138 0%, #030811 85%);
-      color: var(--text);
-      font-family: 'Rajdhani', sans-serif;
-      min-height: 100vh;
-      overflow-x: hidden;
-      padding: 10px 14px 20px 14px;
-    }
+export const WatchThreeCanvas: React.FC<WatchThreeCanvasProps> = ({
+  activePartNum,
+  onSelectPart,
+  isExploded,
+  explosionFactor,
+  isAutoSpinning,
+  showLabels,
+  labelMode = 'all',
+  onToggleLabels,
+  language,
+}) => {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const rendererRef = useRef<THREE.WebGLRenderer | null>(null);
+  const sceneRef = useRef<THREE.Scene | null>(null);
+  const cameraRef = useRef<THREE.PerspectiveCamera | null>(null);
+  const controlsRef = useRef<OrbitControls | null>(null);
+  const watchGroupRef = useRef<THREE.Group | null>(null);
+  const partsMeshesRef = useRef<THREE.Mesh[]>([]);
+  const numberSpritesRef = useRef<THREE.Sprite[]>([]);
+  const nameSpritesRef = useRef<THREE.Sprite[]>([]);
+  const [cameraAngle, setCameraAngle] = useState<number>(0);
+  const [isCapturing, setIsCapturing] = useState<boolean>(false);
 
-    /* Top Main Banner */
-    header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding-bottom: 8px;
-    }
-    .main-logo {
-      font-family: 'Orbitron', sans-serif;
-      font-size: 32px;
-      font-weight: 900;
-      letter-spacing: 2px;
-      background: linear-gradient(180deg, #ffffff 10%, var(--orange) 80%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      text-shadow: 0 0 20px rgba(255, 102, 0, 0.6);
-      font-style: italic;
-    }
-    .center-title {
-      text-align: center;
-      flex: 1;
-    }
-    .center-title h1 {
-      font-family: 'Orbitron', sans-serif;
-      font-size: 36px;
-      font-weight: 900;
-      letter-spacing: 4px;
-      color: #fff;
-      text-shadow: 0 0 25px rgba(255,255,255,0.4);
-    }
-    .center-title p {
-      font-family: 'Share Tech Mono', monospace;
-      font-size: 11px;
-      color: var(--cyan);
-      letter-spacing: 2px;
-      margin-top: 2px;
-    }
-    .top-badge {
-      border: 1.5px solid var(--border-cyan);
-      background: rgba(0, 216, 246, 0.1);
-      color: var(--cyan);
-      font-family: 'Orbitron', sans-serif;
-      font-size: 11px;
-      font-weight: 800;
-      padding: 6px 14px;
-      border-radius: 6px;
-      box-shadow: 0 0 12px rgba(0, 216, 246, 0.3);
-    }
+  const GC = ['#ff9a1f', '#22e07a', '#c084fc', '#38bdf8', '#22d3ee', '#fbbf24'];
+  const getGroupIndex = (i: number) => (i < 15 ? 0 : i < 19 ? 1 : i < 24 ? 2 : i < 28 ? 3 : i < 33 ? 4 : 5);
 
-    /* 3-Column Studio Layout */
-    .dashboard-layout {
-      display: grid;
-      grid-template-columns: 260px 1fr 280px;
-      gap: 12px;
-      margin-top: 10px;
-      align-items: start;
-    }
+  useEffect(() => {
+    if (!containerRef.current) return;
+    const container = containerRef.current;
+    const width = container.clientWidth || 700;
+    const height = container.clientHeight || 520;
 
-    /* Side Panels */
-    .side-col {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      max-height: 720px;
-      overflow-y: auto;
-      scrollbar-width: thin;
-      scrollbar-color: var(--border-cyan) transparent;
-      padding-right: 4px;
-    }
-    .group-box {
-      background: var(--card-bg);
-      border: 1.5px solid var(--border-cyan);
-      border-radius: 10px;
-      overflow: hidden;
-      box-shadow: 0 0 15px rgba(0, 216, 246, 0.15);
-    }
-    .group-hdr {
-      background: linear-gradient(90deg, #09233a, #04101d);
-      border-bottom: 1px solid var(--border-cyan);
-      padding: 6px 10px;
-      font-family: 'Rajdhani', sans-serif;
-      font-weight: 800;
-      font-size: 14px;
-      color: var(--gold);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    .group-hdr.right-hdr { color: #38bdf8; }
-
-    .part-list {
-      padding: 6px 8px;
-      display: flex;
-      flex-direction: column;
-      gap: 3px;
-    }
-    .item-row {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      padding: 4px 6px;
-      border-radius: 6px;
-      cursor: pointer;
-      font-size: 13px;
-      font-weight: 700;
-      transition: all 0.2s;
-      border: 1px solid transparent;
-    }
-    .item-row:hover {
-      background: rgba(0, 240, 255, 0.15);
-      border-color: var(--border-cyan);
-    }
-    .item-row.active {
-      background: rgba(255, 102, 0, 0.25);
-      border-color: var(--orange);
-    }
-    .num-dot {
-      width: 19px;
-      height: 19px;
-      border-radius: 50%;
-      background: var(--orange);
-      color: #000;
-      font-family: 'Orbitron', sans-serif;
-      font-size: 10px;
-      font-weight: 900;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-    }
-    .num-dot.right-dot { background: var(--gold); }
-    .item-label {
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      color: #e2e8f0;
-    }
-
-    /* Center 3D Stage Section */
-    .center-stage-col {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
-
-    #stage-container {
-      width: 100%;
-      height: 520px;
-      background: radial-gradient(ellipse at center, #112d47 0%, #040912 75%);
-      border: 2px solid var(--border-cyan);
-      border-radius: 16px;
-      position: relative;
-      overflow: hidden;
-      box-shadow: 0 0 35px rgba(0, 216, 246, 0.25);
-      touch-action: none;
-    }
-    #stage-container canvas {
-      width: 100%;
-      height: 100%;
-      display: block;
-    }
-
-    /* Floating Callouts */
-    .callout {
-      position: absolute;
-      background: rgba(8, 20, 36, 0.95);
-      border: 1.5px solid var(--orange);
-      border-radius: 8px;
-      padding: 6px 10px;
-      width: 145px;
-      color: #fff;
-      font-size: 11px;
-      box-shadow: 0 0 15px rgba(255, 102, 0, 0.4);
-      z-index: 10;
-      pointer-events: none;
-      transition: opacity 0.3s;
-    }
-    .callout b {
-      display: block;
-      color: var(--gold);
-      font-size: 12px;
-      margin-bottom: 2px;
-    }
-    .callout-lines {
-      position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-      pointer-events: none;
-      z-index: 5;
-    }
-    .callout-lines line {
-      stroke: var(--orange);
-      stroke-width: 1.5;
-      stroke-dasharray: 4, 3;
-    }
-
-    /* Controls Bar */
-    .controls-deck {
-      display: flex;
-      gap: 12px;
-      margin-top: 12px;
-      flex-wrap: wrap;
-      justify-content: center;
-      align-items: center;
-    }
-    .action-btn {
-      background: #091a2b;
-      border: 1.5px solid var(--orange);
-      color: #fff;
-      font-family: 'Rajdhani', sans-serif;
-      font-weight: 800;
-      font-size: 15px;
-      padding: 7px 18px;
-      border-radius: 8px;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      transition: all 0.25s;
-    }
-    .action-btn.active, .action-btn:hover {
-      background: var(--orange);
-      color: #000;
-      box-shadow: 0 0 15px rgba(255, 102, 0, 0.6);
-    }
-    .action-btn.cyan-btn {
-      border-color: var(--cyan);
-    }
-    .action-btn.cyan-btn.active, .action-btn.cyan-btn:hover {
-      background: var(--cyan);
-      color: #000;
-      box-shadow: 0 0 15px rgba(0, 240, 255, 0.6);
-    }
-
-    .slider-box {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      background: #061524;
-      border: 1px solid var(--border-cyan);
-      padding: 5px 14px;
-      border-radius: 20px;
-      font-family: 'Orbitron', sans-serif;
-      font-size: 12px;
-      color: #fff;
-    }
-    .slider-box input {
-      width: 130px;
-      accent-color: var(--cyan);
-      cursor: pointer;
-    }
-
-    /* Bottom Inspector & Brand Footer */
-    .bottom-status-strip {
-      display: grid;
-      grid-template-columns: 240px 1fr 340px;
-      gap: 14px;
-      margin-top: 14px;
-      align-items: center;
-    }
-
-    .lte-box {
-      background: var(--card-bg);
-      border: 2px solid var(--border-cyan);
-      border-radius: 12px;
-      padding: 10px 14px;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      box-shadow: 0 0 15px rgba(0, 216, 246, 0.2);
-    }
-    .lte-sig {
-      font-family: 'Orbitron', sans-serif;
-      font-size: 26px;
-      font-weight: 900;
-      color: var(--cyan);
-      line-height: 1;
-    }
-    .lte-sig small {
-      display: block;
-      font-size: 11px;
-      color: #94a3b8;
-    }
-    .bars-icon {
-      font-size: 22px;
-      color: var(--cyan);
-    }
-
-    .inspector-card {
-      background: var(--card-bg);
-      border: 2px solid var(--border-cyan);
-      border-radius: 12px;
-      padding: 10px 16px;
-      display: flex;
-      align-items: center;
-      gap: 16px;
-      box-shadow: 0 0 20px rgba(0, 216, 246, 0.2);
-    }
-    .soc-icon {
-      width: 52px;
-      height: 52px;
-      background: #021f17;
-      border: 2px solid var(--gold);
-      border-radius: 8px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: var(--gold);
-      font-family: 'Orbitron', sans-serif;
-      font-size: 11px;
-      font-weight: 900;
-      flex-shrink: 0;
-      box-shadow: 0 0 10px rgba(251, 191, 36, 0.3);
-    }
-    .insp-details h3 {
-      font-family: 'Orbitron', sans-serif;
-      font-size: 16px;
-      color: var(--cyan);
-      margin-bottom: 3px;
-    }
-    .insp-details p {
-      font-size: 13px;
-      color: #cbd5e1;
-      line-height: 1.35;
-    }
-
-    .footer-crown {
-      background: var(--card-bg);
-      border: 2px solid var(--border-cyan);
-      border-radius: 12px;
-      padding: 10px 14px;
-      text-align: right;
-      box-shadow: 0 0 20px rgba(0, 216, 246, 0.2);
-    }
-    .footer-crown span {
-      font-family: 'Orbitron', sans-serif;
-      font-size: 9px;
-      color: #94a3b8;
-      letter-spacing: 2px;
-      display: block;
-    }
-    .footer-crown h2 {
-      font-family: 'Orbitron', sans-serif;
-      font-size: 24px;
-      font-weight: 900;
-      color: #fff;
-      letter-spacing: 2px;
-    }
-    .footer-crown h2 i {
-      color: var(--orange);
-      font-style: italic;
-    }
-
-    /* Mobile Responsive */
-    @media (max-width: 1000px) {
-      .dashboard-layout {
-        grid-template-columns: 1fr;
-      }
-      .center-stage-col {
-        order: -1;
-      }
-      .bottom-status-strip {
-        grid-template-columns: 1fr;
-      }
-      #stage-container {
-        height: 420px;
-      }
-    }
-  </style>
-</head>
-<body>
-
-  <!-- Top Header Title Strip -->
-  <header>
-    <div class="main-logo">YASHU PUDO</div>
-    <div class="center-title">
-      <h1>YASHU PUDO</h1>
-      <p>LJ939 4G SMARTWATCH // 45 PARTS TEARDOWN ARCHITECTURE</p>
-    </div>
-    <div class="top-badge">45 HARDWARE PARTS v2.0</div>
-  </header>
-
-  <!-- Main 3-Column Studio Dashboard -->
-  <div class="dashboard-layout">
-
-    <!-- Left Side: Blocks 1, 2, 3 -->
-    <div class="side-col">
-      <!-- 1. Motherboard 15 Parts -->
-      <div class="group-box">
-        <div class="group-hdr">1. मदरबोर्ड के 15 मुख्य पार्ट्स (1–15)</div>
-        <div class="part-list" id="list-g1"></div>
-      </div>
-      <!-- 2. Left Side Parts -->
-      <div class="group-box">
-        <div class="group-hdr">2. Left Side (बाईं तरफ) (16–19)</div>
-        <div class="part-list" id="list-g2"></div>
-      </div>
-      <!-- 3. Right Side Parts -->
-      <div class="group-box">
-        <div class="group-hdr">3. Right Side (दाईं तरफ) (20–24)</div>
-        <div class="part-list" id="list-g3"></div>
-      </div>
-    </div>
-
-    <!-- Center: 3D Studio Stage & Animation Controls -->
-    <div class="center-stage-col">
-      <div id="stage-container">
-        <svg class="callout-lines" id="svg-lines"></svg>
-        <div id="callout-box-container"></div>
-      </div>
-
-      <!-- Controls Row -->
-      <div class="controls-deck">
-        <button class="action-btn active" id="btn-explode" onclick="toggleExplosion()">
-          💥 Exploded (अलग करें)
-        </button>
-        <button class="action-btn cyan-btn" id="btn-spin" onclick="toggleAutoSpin()">
-          🔄 360° Auto Spin
-        </button>
-        <div class="slider-box">
-          <span>0°</span>
-          <input type="range" id="angle-slider" min="0" max="360" value="30" oninput="manualRotate(this.value)">
-          <span id="deg-label">30°</span>
-        </div>
-        <button class="action-btn" onclick="assembleWatch()">
-          📦 Assembled (जोड़ें)
-        </button>
-      </div>
-    </div>
-
-    <!-- Right Side: Blocks 4, 5, 6 -->
-    <div class="side-col">
-      <!-- 4. Top Side Parts -->
-      <div class="group-box">
-        <div class="group-hdr right-hdr">4. ऊपर की तरफ (Top Side) (25–28)</div>
-        <div class="part-list" id="list-g4"></div>
-      </div>
-      <!-- 5. Bottom Side Parts -->
-      <div class="group-box">
-        <div class="group-hdr right-hdr">5. नीचे की तरफ (Bottom Side) (29–33)</div>
-        <div class="part-list" id="list-g5"></div>
-      </div>
-      <!-- 6. Internal Parts -->
-      <div class="group-box">
-        <div class="group-hdr right-hdr">6. घड़ी के अंदर के अन्य पार्ट्स (34–45)</div>
-        <div class="part-list" id="list-g6"></div>
-      </div>
-    </div>
-
-  </div>
-
-  <!-- Bottom Details Strip (As shown in reference image) -->
-  <div class="bottom-status-strip">
-    <div class="lte-box">
-      <div class="bars-icon">📶</div>
-      <div class="lte-sig">
-        4G VoLTE
-        <small>SIM LTE ACTIVE</small>
-      </div>
-    </div>
-
-    <div class="inspector-card">
-      <div class="soc-icon" id="soc-badge">LJ939</div>
-      <div class="insp-details">
-        <h3 id="info-title">Part #1: CPU / Processor</h3>
-        <p id="info-desc">घड़ी का मुख्य दिमाग - यह 4G LTE नेटवर्क, ऑपरेटिंग सिस्टम, ऐप प्रोसेसिंग और ग्राफिक्स रेंडरिंग को पूरी तरह से संभालता है।</p>
-      </div>
-    </div>
-
-    <div class="footer-crown">
-      <span>SMARTER • FASTER • STRONGER</span>
-      <h2>YASHU <i>PUDO</i> 👑</h2>
-    </div>
-  </div>
-
-  <!-- Three.js CDN -->
-  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
-
-  <script>
-    // 45 Hardware Parts Catalog
-    const partsData = [
-      { id: 1, g: 1, name: "CPU / Processor", role: "घड़ी का दिमाग", desc: "LJ939 Quad-Core 4G नेटवर्क और Android OS प्रोसेसिंग चिपसेट।" },
-      { id: 2, g: 1, name: "RAM IC", role: "ऐप चलाने की मेमोरी", desc: "मल्टीटास्किंग और ऐप्स के स्मूथ परफॉर्मेंस के लिए LPDDR RAM।" },
-      { id: 3, g: 1, name: "ROM / Flash IC", role: "डेटा और सॉफ्टवेयर स्टोर", desc: "सिस्टम फाइल्स और मीडिया स्टोर करने वाली 64GB eMMC मेमोरी।" },
-      { id: 4, g: 1, name: "4G LTE Modem IC", role: "4G नेटवर्क चलाना", desc: "हाई-स्पीड इंटरनेट और VoLTE सेलुलर कॉलिंग प्रोसेसर चिप।" },
-      { id: 5, g: 1, name: "RF Antenna Circuit", role: "सिग्नल पकड़ना", desc: "रेडियो फ्रीक्वेंसी सिग्नल फिल्टरिंग और नेटवर्क ट्यूनिंग सर्किट।" },
-      { id: 6, g: 1, name: "SIM Connector", role: "SIM लगाना", desc: "नैनो-सिम कार्ड के 6-पिन गोल्ड कॉन्टैक्ट्स को मदरबोर्ड से जोड़ता है।" },
-      { id: 7, g: 1, name: "PMIC (Power IC)", role: "बिजली नियंत्रित करना", desc: "पावर मैनेजमेंट आईसी जो सभी घटकों को स्थिर वोल्टेज सप्लाई देती है।" },
-      { id: 8, g: 1, name: "Audio IC / Amplifier", role: "स्पीकर की आवाज", desc: "लाउड और क्लियर ऑडियो के लिए क्लास-डी साउंड एम्पलीफायर चिप।" },
-      { id: 9, g: 1, name: "Charging IC", role: "बैटरी चार्ज करना", desc: "मैग्नेटिक 4-पिन डॉक से करंट लेकर बैटरी को सुरक्षित चार्ज करता है।" },
-      { id: 10, g: 1, name: "Display Connector", role: "डिस्प्ले कनेक्शन", desc: "AMOLED स्क्रीन रिबन केबल का 24-पिन FPC सॉकेट।" },
-      { id: 11, g: 1, name: "Touch Controller IC", role: "टच चलाना", desc: "मल्टी-टच जेस्चर और स्वाइप इनपुट को प्रोसेस करने वाली चिप।" },
-      { id: 12, g: 1, name: "Camera Connector", role: "कैमरा कनेक्शन", desc: "रोटेटिंग एचडी कैमरा मॉड्यूल का डेटा रिबन कनेक्टर।" },
-      { id: 13, g: 1, name: "Sensor IC", role: "सेंसर का काम", desc: "6-एक्सिस जायरोस्कोप और एक्सेलेरोमीटर पेडोमीटर चिप।" },
-      { id: 14, g: 1, name: "Battery Connector", role: "बैटरी कनेक्शन", desc: "3.8V लिथियम बैटरी के स्प्रिंग-लोडेड टर्मिनल्स।" },
-      { id: 15, g: 1, name: "Microphone Circuit", role: "आवाज रिकॉर्ड करना", desc: "लो-नॉइज़ ऑडियो फिल्टर और डिजिटल वॉइस माइक लाइन।" },
-
-      { id: 16, g: 2, name: "Speaker 🔊", role: "कॉल व संगीत आवाज़", desc: "बाएं फ्रेम में फिट 8-ओम लाउड एकॉस्टिक स्पीकर यूनिट।" },
-      { id: 17, g: 2, name: "SIM Card Slot", role: "नैनो सिम ट्रे", desc: "लेफ्ट साइड मेटल एज में दिया गया इजेक्टेबल सिम स्लॉट।" },
-      { id: 18, g: 2, name: "Speaker Mesh / जाली", role: "डस्ट प्रोटेक्शन", desc: "स्पीकर ग्रिल को धूल और पानी से बचाने वाली स्टील मेश।" },
-      { id: 19, g: 2, name: "Speaker Connection", role: "स्पीकर वायरिंग", desc: "मदरबोर्ड साउंड आउटपुट से स्पीकर कॉइल तक की केबल।" },
-
-      { id: 20, g: 3, name: "Power Button 🔘", role: "ऑन/ऑफ क्राउन", desc: "स्क्रीन वेक-अप और मेनू नेविगेशन के लिए ऑरेंज रोटरी क्राउन।" },
-      { id: 21, g: 3, name: "Microphone 🎤", role: "माइक इनपुट", desc: "दाईं तरफ लगा नॉइज़-कैंसलिंग MEMS माइक्रोफोन पोर्ट।" },
-      { id: 22, g: 3, name: "Camera 📷", role: "HD रोटेटिंग कैमरा", desc: "180° फ्लिप और रोटेशन लेंस जो सेल्फी और रियर फोटो लेता है।" },
-      { id: 23, g: 3, name: "Button Flex Cable", role: "बटन केबल", desc: "पावर क्राउन बटन के क्लिक्स को मदरबोर्ड तक भेजने वाला फ्लेक्स।" },
-      { id: 24, g: 3, name: "Camera Flex Cable", role: "कैमरा रिबन", desc: "कैमरे के हाई-स्पीड इमेज सिग्नल्स को ले जाने वाली FPC केबल।" },
-
-      { id: 25, g: 4, name: "Display Screen", role: "2.02\" AMOLED", desc: "वाइब्रेंट कलर्स और 60Hz रिफ्रेश रेट वाला हाई-ब्राइटनेस पैनल।" },
-      { id: 26, g: 4, name: "Display Glass", role: "सफायर ग्लास", desc: "स्क्रैच-रेसिस्टेंट 2.5D कर्व्ड फ्रंट प्रोटेक्टिव ग्लास।" },
-      { id: 27, g: 4, name: "Touch Panel", role: "कैपेसिटिव टच", desc: "फास्ट रिस्पॉन्स वाला मल्टी-टच टचस्क्रीन सेंसर ग्रिड।" },
-      { id: 28, g: 4, name: "Display Flex Cable", role: "डिस्प्ले FPC", desc: "स्क्रीन और टच को मदरबोर्ड सॉकेट से जोड़ने वाली मुख्य रिबन।" },
-
-      { id: 29, g: 5, name: "Heart Rate Sensor", role: "ऑप्टिकल PPG", desc: "धड़कन को ट्रैक करने वाला बैक-माउंटेड ऑप्टिकल सेंसर।" },
-      { id: 30, g: 5, name: "Blood Oxygen (SpO2)", role: "ऑक्सीजन ट्रैकिंग", desc: "ब्लड ऑक्सीजन सैचुरेशन लेवल नापने वाला इन्फ्रारेड सेंसर।" },
-      { id: 31, g: 5, name: "Sensor LED", role: "ग्रीन/रेड LED", desc: "त्वचा के अंदर ब्लड फ्लो देखने के लिए नीचे जलने वाली ड्यूल LEDs।" },
-      { id: 32, g: 5, name: "Sensor Receiver", role: "फोटोडायोड", desc: "रिफ्लेक्ट होकर आने वाले प्रकाश सिग्नल्स को पढ़ने वाला रिसीवर।" },
-      { id: 33, g: 5, name: "Charging Contacts", role: "गोल्डन पिन (••••)", desc: "मैग्नेटिक चार्जर के लिए 4-पॉइंट गोल्ड प्लेटेड Pogo कॉन्टैक्ट्स।" },
-
-      { id: 34, g: 6, name: "Rechargeable Battery", role: "1000mAh बैटरी", desc: "3.8V हाई-डेंसिटी लिथियम-पॉलीमर सेल जो लंबा बैकअप देता है।" },
-      { id: 35, g: 6, name: "Vibration Motor", role: "हैप्टिक मोटर", desc: "कॉल और नोटिफिकेशन आने पर वाइब्रेशन देने वाली गोल कॉइन मोटर।" },
-      { id: 36, g: 6, name: "4G Antenna", role: "सेलुलर एंटीना", desc: "वॉच केस के अंदर फ्रेम पर माउंटेड 4G VoLTE एंटीना स्ट्रिप।" },
-      { id: 37, g: 6, name: "Wi-Fi / BT Antenna", role: "वायरलेस एंटीना", desc: "2.4GHz वाई-फाई और ब्लूटूथ पेयरिंग एंटीना।" },
-      { id: 38, g: 6, name: "GPS Antenna", role: "नेविगेशन एंटीना", desc: "लाइव मैप और सैटेलाइट लोकेशन ट्रेसिंग एंटीना स्ट्रिप।" },
-      { id: 39, g: 6, name: "Internal PCB", role: "मल्टी-लेयर बोर्ड", desc: "पूरा हरा सर्किट बोर्ड जो सभी 45 पार्ट्स को जोड़ता है।" },
-      { id: 40, g: 6, name: "Crystal Oscillator", role: "क्लॉक क्रिस्टल", desc: "सिस्टम क्लॉक और टाइमिंग को नियंत्रित करने वाला 32.768kHz क्रिस्टल।" },
-      { id: 41, g: 6, name: "Capacitors", role: "वोल्टेज फिल्टर", desc: "पावर लाइन में वोल्टेज के झटकों को रोकने वाले SMD कैपेसिटर्स।" },
-      { id: 42, g: 6, name: "Resistors", role: "करंट रेगुलेटर", desc: "सेंसर और आईसी में करंट लिमिट करने वाले छोटे रेसिस्टर्स।" },
-      { id: 43, g: 6, name: "Inductors", role: "नॉइज़ फिल्टर", desc: "पावर सप्लाई सर्किट में इलेक्ट्रोमैग्नेटिक नॉइज़ फिल्टर करने वाले इंडक्टर्स।" },
-      { id: 44, g: 6, name: "Connectors", role: "BTB क्लिप्स", desc: "फ्लेक्स केबल्स को मदरबोर्ड पर सुरक्षित लॉक करने वाले कनेक्टर्स।" },
-      { id: 45, g: 6, name: "Power Switch Circuit", role: "पावर सेफ्टी", desc: "ओवर-वोल्टेज और बैटरी सेफ्टी शटडाउन सर्किट।" }
-    ];
-
-    // Populate Left and Right List Columns
-    function populateLists() {
-      const gMap = { 1: 'list-g1', 2: 'list-g2', 3: 'list-g3', 4: 'list-g4', 5: 'list-g5', 6: 'list-g6' };
-      partsData.forEach(p => {
-        const div = document.createElement('div');
-        div.className = 'item-row';
-        div.id = `row-${p.id}`;
-        div.onclick = () => selectPart(p.id);
-        const dotClass = p.g >= 4 ? 'num-dot right-dot' : 'num-dot';
-        div.innerHTML = `<span class="${dotClass}">${p.id}</span><span class="item-label">${p.name}</span>`;
-        document.getElementById(gMap[p.g]).appendChild(div);
-      });
-    }
-    populateLists();
-
-    // Three.js 3D Realistic Teardown Rig Setup
-    const container = document.getElementById('stage-container');
+    // 1. Scene
     const scene = new THREE.Scene();
-    scene.background = new THREE.Color(0x040912);
+    scene.background = new THREE.Color(0x040812);
+    sceneRef.current = scene;
 
-    const camera = new THREE.PerspectiveCamera(40, container.clientWidth / container.clientHeight, 0.1, 100);
-    camera.position.set(9, 6, 12);
+    // 2. Camera: Isometric 3D angle
+    const camera = new THREE.PerspectiveCamera(38, width / height, 0.1, 100);
+    camera.position.set(7.8, 7.2, 11.8);
+    cameraRef.current = camera;
 
-    const renderer = new THREE.WebGLRenderer({ antialias: true });
-    renderer.setSize(container.clientWidth, container.clientHeight);
+    // 3. 4K High-Precision Renderer
+    const renderer = new THREE.WebGLRenderer({
+      antialias: true,
+      powerPreference: 'high-performance',
+      preserveDrawingBuffer: true,
+    });
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-    container.appendChild(renderer.domElement);
+    renderer.setSize(width, height);
+    renderer.outputColorSpace = THREE.SRGBColorSpace;
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 1.45;
+    container.replaceChildren(renderer.domElement);
+    rendererRef.current = renderer;
 
-    const controls = new THREE.OrbitControls(camera, renderer.domElement);
+    // 4. Controls
+    const controls = new OrbitControls(camera, renderer.domElement);
     controls.enableDamping = true;
     controls.dampingFactor = 0.05;
-    controls.target.set(0, 0.4, 0);
+    controls.minDistance = 4;
+    controls.maxDistance = 28;
+    controls.target.set(0, 0.2, 0);
+    controlsRef.current = controls;
 
-    // Dynamic Lighting
-    scene.add(new THREE.HemisphereLight(0xffffff, 0x112233, 1.2));
-    const mainLight = new THREE.DirectionalLight(0xffffff, 1.0);
-    mainLight.position.set(6, 14, 8);
-    scene.add(mainLight);
+    // 5. Studio Lighting Rig for Metallic & Glass Highlights
+    const pmremGenerator = new THREE.PMREMGenerator(renderer);
+    scene.environment = pmremGenerator.fromScene(new RoomEnvironment(), 0.05).texture;
+    pmremGenerator.dispose();
 
-    const cyanLight = new THREE.PointLight(0x00f0ff, 1.2, 30);
-    cyanLight.position.set(-8, 5, 6);
-    scene.add(cyanLight);
+    scene.add(new THREE.HemisphereLight(0xffffff, 0x0f1c2d, 1.1));
 
-    const orangeLight = new THREE.PointLight(0xff6600, 1.5, 30);
-    orangeLight.position.set(8, -2, -6);
-    scene.add(orangeLight);
+    const keyLight = new THREE.DirectionalLight(0xffffff, 1.8);
+    keyLight.position.set(8, 14, 9);
+    scene.add(keyLight);
 
-    const watchRig = new THREE.Group();
-    scene.add(watchRig);
+    const cyanRim = new THREE.PointLight(0x00f0ff, 2.6, 25);
+    cyanRim.position.set(-7, 4, 6);
+    scene.add(cyanRim);
 
-    // Helpers
-    function makeRoundBox(w, h, d, r) {
-      const shape = new THREE.Shape();
-      const x = -w/2, y = -d/2;
-      shape.moveTo(x + r, y);
-      shape.lineTo(x + w - r, y);
-      shape.quadraticCurveTo(x + w, y, x + w, y + r);
-      shape.lineTo(x + w, y + d - r);
-      shape.quadraticCurveTo(x + w, y + d, x + w - r, y + d);
-      shape.lineTo(x + r, y + d);
-      shape.quadraticCurveTo(x, y + d, x, y + d - r);
-      shape.lineTo(x, y + r);
-      shape.quadraticCurveTo(x, y, x + r, y);
-      const geom = new THREE.ExtrudeGeometry(shape, { depth: h, bevelEnabled: false, curveSegments: 12 });
-      geom.rotateX(-Math.PI / 2);
-      geom.translate(0, -h/2, 0);
-      return geom;
+    const orangeRim = new THREE.PointLight(0xff7700, 2.8, 25);
+    orangeRim.position.set(7, -2, -6);
+    scene.add(orangeRim);
+
+    const floorGrid = new THREE.GridHelper(32, 32, 0x12354d, 0x071522);
+    floorGrid.position.y = -4.5;
+    scene.add(floorGrid);
+
+    // Watch Group
+    const watchGroup = new THREE.Group();
+    scene.add(watchGroup);
+    watchGroupRef.current = watchGroup;
+
+    const PI = Math.PI;
+    function sh(w: number, d: number, r: number) {
+      const s = new THREE.Shape();
+      const x = -w / 2, y = -d / 2;
+      s.moveTo(x + r, y);
+      s.lineTo(x + w - r, y);
+      s.quadraticCurveTo(x + w, y, x + w, y + r);
+      s.lineTo(x + w, y + d - r);
+      s.quadraticCurveTo(x + w, y + d, x + w - r, y + d);
+      s.lineTo(x + r, y + d);
+      s.quadraticCurveTo(x, y + d, x, y + d - r);
+      s.lineTo(x, y + r);
+      s.quadraticCurveTo(x, y, x + r, y);
+      return s;
     }
 
-    // High Definition Textures Generator (Canvas)
-    function createScreenTexture() {
-      const c = document.createElement('canvas');
-      c.width = 512; c.height = 600;
-      const ctx = c.getContext('2d');
-      // Deep AMOLED black with futuristic gradients
-      ctx.fillStyle = '#02050c';
-      ctx.fillRect(0, 0, 512, 600);
-
-      // Color flare curves
-      const grad = ctx.createLinearGradient(0, 0, 512, 600);
-      grad.addColorStop(0, '#9333ea');
-      grad.addColorStop(0.5, '#ec4899');
-      grad.addColorStop(1, '#06b6d4');
-      ctx.strokeStyle = grad;
-      ctx.lineWidth = 36;
-      ctx.beginPath();
-      ctx.arc(256, 300, 190, 0.4, Math.PI * 1.5);
-      ctx.stroke();
-
-      // Digital Watch Time
-      ctx.fillStyle = '#ffffff';
-      ctx.font = 'italic 900 130px Arial';
-      ctx.textAlign = 'center';
-      ctx.fillText('10:48', 256, 320);
-
-      ctx.fillStyle = '#00f0ff';
-      ctx.font = 'bold 28px Arial';
-      ctx.letterSpacing = '2px';
-      ctx.fillText('4G VOLTE AMOLED', 256, 375);
-      return new THREE.CanvasTexture(c);
+    function rr(w: number, d: number, h: number, r: number, hole?: number[]) {
+      const s = sh(w, d, r);
+      if (hole) s.holes.push(sh(hole[0], hole[1], hole[2]));
+      const g = new THREE.ExtrudeGeometry(s, { depth: h, bevelEnabled: true, bevelSegments: 3, bevelSize: 0.04, bevelThickness: 0.04, curveSegments: 18 });
+      g.rotateX(-PI / 2);
+      g.translate(0, -h / 2, 0);
+      return g;
     }
 
-    function createPCBTexture() {
-      const c = document.createElement('canvas');
-      c.width = 512; c.height = 512;
-      const ctx = c.getContext('2d');
-      ctx.fillStyle = '#053d26';
-      ctx.fillRect(0, 0, 512, 512);
+    const M_METAL = (c: number, r: number = 0.22, m: number = 0.88) =>
+      new THREE.MeshStandardMaterial({ color: c, metalness: m, roughness: r });
+    const B = (w: number, h: number, d: number) => new THREE.BoxGeometry(w, h, d);
+    const C = (r: number, h: number) => new THREE.CylinderGeometry(r, r, h, 36);
 
-      // Copper trace lines
-      ctx.strokeStyle = '#10b981';
-      ctx.lineWidth = 2.5;
-      for (let i = 20; i < 500; i += 32) {
-        ctx.beginPath();
-        ctx.moveTo(i, 20); ctx.lineTo(i, 220); ctx.lineTo(i + 40, 260); ctx.lineTo(i + 40, 480);
-        ctx.stroke();
+    const P: THREE.Mesh[] = [];
+    const S: THREE.Sprite[] = [];
+    const NS: THREE.Sprite[] = [];
+
+    function addPart(
+      i: number,
+      geo: THREE.BufferGeometry,
+      mat: THREE.Material,
+      basePos: [number, number, number],
+      explPos: [number, number, number],
+      rot?: [number, number, number]
+    ) {
+      const m = new THREE.Mesh(geo, mat);
+      m.position.set(basePos[0], basePos[1], basePos[2]);
+      if (rot) m.rotation.set(rot[0], rot[1], rot[2]);
+      m.userData = {
+        b: new THREE.Vector3(...basePos),
+        o: new THREE.Vector3(...explPos),
+        r: m.rotation.clone(),
+        i: i,
+      };
+      watchGroup.add(m);
+
+      if (i >= 0 && i < 45) {
+        P[i] = m;
+        const spr = createNumberSprite(i + 1, GC[getGroupIndex(i)]);
+        spr.userData.i = i;
+        S[i] = spr;
+        watchGroup.add(spr);
+
+        const short = PARTS_DATA[i]?.shortName || `Part ${i + 1}`;
+        const nspr = createNameSprite(`${i + 1} ${short}`, GC[getGroupIndex(i)]);
+        nspr.userData.i = i;
+        NS[i] = nspr;
+        watchGroup.add(nspr);
       }
-      ctx.fillStyle = '#fbbf24';
-      for (let x = 40; x < 480; x += 60) {
-        for (let y = 40; y < 480; y += 60) {
-          ctx.beginPath(); ctx.arc(x, y, 3, 0, 7); ctx.fill();
+      return m;
+    }
+
+    function createNumberSprite(n: number, col: string) {
+      const c = document.createElement('canvas');
+      c.width = c.height = 72;
+      const x = c.getContext('2d')!;
+      x.fillStyle = col;
+      x.beginPath();
+      x.arc(36, 36, 32, 0, Math.PI * 2);
+      x.fill();
+      x.strokeStyle = '#ffffff';
+      x.lineWidth = 4;
+      x.stroke();
+      x.fillStyle = '#04070b';
+      x.font = 'bold 34px Arial';
+      x.textAlign = 'center';
+      x.textBaseline = 'middle';
+      x.fillText(String(n), 36, 38);
+
+      const spr = new THREE.Sprite(
+        new THREE.SpriteMaterial({ map: new THREE.CanvasTexture(c), depthTest: false, transparent: true })
+      );
+      spr.scale.set(0.46, 0.46, 1);
+      spr.renderOrder = 22;
+      return spr;
+    }
+
+    function createNameSprite(t: string, col: string) {
+      const c = document.createElement('canvas');
+      c.width = 280;
+      c.height = 76;
+      const x = c.getContext('2d')!;
+      x.fillStyle = 'rgba(6, 14, 25, 0.95)';
+      x.fillRect(4, 4, 272, 68);
+      x.strokeStyle = col;
+      x.lineWidth = 4;
+      x.strokeRect(4, 4, 272, 68);
+      x.fillStyle = '#ffffff';
+      x.font = 'bold 32px Arial';
+      x.textAlign = 'center';
+      x.textBaseline = 'middle';
+      x.fillText(t, 140, 40);
+
+      const s = new THREE.Sprite(
+        new THREE.SpriteMaterial({ map: new THREE.CanvasTexture(c), depthTest: false, transparent: true })
+      );
+      s.scale.set(1.3, 0.36, 1);
+      s.renderOrder = 21;
+      return s;
+    }
+
+    // 4K Ultra-Vibrant AMOLED Screen Texture (Deep Black, Glowing Arc, Sharp 10:48)
+    function createRealisticScreenTexture() {
+      const c = document.createElement('canvas');
+      c.width = 1024;
+      c.height = 1200;
+      const x = c.getContext('2d')!;
+
+      // Deep True Black
+      x.fillStyle = '#000000';
+      x.fillRect(0, 0, 1024, 1200);
+
+      // Curved Electric Cyan Border Frame
+      x.strokeStyle = '#00f0ff';
+      x.lineWidth = 18;
+      x.strokeRect(36, 36, 952, 1128);
+
+      // Glowing Ambient Arc Gauge
+      const cx = 512, cy = 600, rad = 360;
+      const arcGrad = x.createLinearGradient(cx - rad, cy, cx + rad, cy - rad);
+      arcGrad.addColorStop(0, '#00f0ff');
+      arcGrad.addColorStop(0.35, '#38bdf8');
+      arcGrad.addColorStop(0.7, '#c084fc');
+      arcGrad.addColorStop(1, '#ff007f');
+
+      x.beginPath();
+      x.arc(cx, cy, rad, 0.75 * Math.PI, 2.15 * Math.PI, false);
+      x.strokeStyle = arcGrad;
+      x.lineWidth = 64;
+      x.lineCap = 'round';
+      x.shadowColor = 'rgba(255, 0, 128, 0.75)';
+      x.shadowBlur = 40;
+      x.stroke();
+
+      // Top Status Bar
+      x.shadowBlur = 0;
+      x.fillStyle = '#00f0ff';
+      x.font = 'bold 44px Arial';
+      x.fillText('●●●● 4G VoLTE', 110, 150);
+      x.fillStyle = '#fbbf24';
+      x.fillText('⚡ 100%', 810, 150);
+
+      // Digital Watch Time: 10:48
+      x.shadowColor = '#000000';
+      x.shadowBlur = 24;
+      x.fillStyle = '#ffffff';
+      x.font = 'bold 240px Arial';
+      x.textAlign = 'center';
+      x.textBaseline = 'middle';
+      x.fillText('10:48', cx, cy - 20);
+
+      // Glowing Subtitle
+      x.shadowColor = 'rgba(0, 240, 255, 0.9)';
+      x.shadowBlur = 22;
+      x.fillStyle = '#00f0ff';
+      x.font = 'bold 54px Arial';
+      x.fillText('4G VOLTE AMOLED', cx, cy + 130);
+
+      // Heart & Step Indicators
+      x.shadowBlur = 0;
+      x.fillStyle = '#10b981';
+      x.font = 'bold 42px Arial';
+      x.fillText('♥ 78 BPM   •   9,820 STEPS', cx, 1020);
+
+      const tex = new THREE.CanvasTexture(c);
+      tex.colorSpace = THREE.SRGBColorSpace;
+      tex.anisotropy = 16;
+      return tex;
+    }
+
+    // Emerald Green PCB Texture with Gold Lines
+    function createPcbTexture() {
+      const c = document.createElement('canvas');
+      c.width = 1024;
+      c.height = 1024;
+      const x = c.getContext('2d')!;
+
+      x.fillStyle = '#054728';
+      x.fillRect(0, 0, 1024, 1024);
+
+      // Micro solder points
+      x.fillStyle = 'rgba(16, 185, 129, 0.35)';
+      for (let vx = 30; vx < 1000; vx += 36) {
+        for (let vy = 30; vy < 1000; vy += 36) {
+          x.fillRect(vx, vy, 4, 4);
         }
       }
-      return new THREE.CanvasTexture(c);
+
+      // Golden traces
+      x.strokeStyle = '#f59e0b';
+      x.lineWidth = 5;
+      for (let i = 40; i < 980; i += 64) {
+        x.beginPath();
+        x.moveTo(i, 40);
+        x.lineTo(i + 24, 280);
+        x.lineTo(i + 70, 520);
+        x.stroke();
+
+        x.beginPath();
+        x.arc(i + 70, 520, 7, 0, Math.PI * 2);
+        x.fillStyle = '#fbbf24';
+        x.fill();
+      }
+
+      // Gold pins on top & bottom edge
+      x.fillStyle = '#fbbf24';
+      for (let j = 40; j < 980; j += 32) {
+        x.fillRect(j, 980, 20, 40);
+        x.fillRect(j, 4, 20, 40);
+      }
+
+      const tex = new THREE.CanvasTexture(c);
+      tex.colorSpace = THREE.SRGBColorSpace;
+      tex.anisotropy = 16;
+      return tex;
     }
 
-    function createBatteryTexture() {
-      const c = document.createElement('canvas');
-      c.width = 400; c.height = 300;
-      const ctx = c.getContext('2d');
-      ctx.fillStyle = '#1e293b';
-      ctx.fillRect(0, 0, 400, 300);
-      ctx.fillStyle = '#ffffff';
-      ctx.font = 'bold 42px Arial';
-      ctx.textAlign = 'center';
-      ctx.fillText('1000mAh', 200, 110);
-      ctx.fillText('Battery', 200, 160);
-      ctx.fillStyle = '#ff8800';
-      ctx.font = 'bold 28px Arial';
-      ctx.fillText('3.8V HIGH GAIN', 200, 215);
-      return new THREE.CanvasTexture(c);
-    }
+    // ==========================================
+    // 3D LAYERS BUILD
+    // ==========================================
 
-    // Build Physical Layers
-    const layers = [];
-    function addLayerMesh(geom, mat, baseY, expY, idTag) {
-      const mesh = new THREE.Mesh(geom, mat);
-      mesh.position.y = expY;
-      mesh.userData = { baseY: baseY, expY: expY, idTag: idTag };
-      watchRig.add(mesh);
-      layers.push(mesh);
-      return mesh;
-    }
+    // Layer 0: Deep Space Grey Metallic Outer Chassis (-1)
+    addPart(
+      -1,
+      rr(4.3, 4.9, 0.65, 0.85),
+      M_METAL(0x18202a, 0.25, 0.92),
+      [0, -1.0, 0],
+      [0, -3.8, 0]
+    );
 
-    // 1. Layer: 2.02" Curved Display & Sapphire Glass
-    const glassMat = new THREE.MeshStandardMaterial({
-      color: 0x38bdf8,
-      transparent: true,
-      opacity: 0.25,
-      metalness: 0.1,
-      roughness: 0.05
+    // Orange Rotary Digital Crown (#20, index 19)
+    const crownMat = new THREE.MeshStandardMaterial({
+      color: 0xff6600,
+      metalness: 0.85,
+      roughness: 0.2,
+      emissive: 0xff4400,
+      emissiveIntensity: 0.4,
     });
-    addLayerMesh(makeRoundBox(3.8, 0.08, 4.6, 0.7), glassMat, 0.7, 5.2, 'glass');
+    const crownMesh = addPart(
+      19,
+      C(0.38, 0.55),
+      crownMat,
+      [2.4, -0.9, -0.4],
+      [2.7, -2.8, -0.4],
+      [0, 0, PI / 2]
+    );
+    crownMesh.add(new THREE.Mesh(new THREE.TorusGeometry(0.38, 0.05, 8, 32), M_METAL(0xff9900, 0.2, 0.95)));
 
-    const screenMat = new THREE.MeshBasicMaterial({ map: createScreenTexture() });
-    const screenMesh = new THREE.Mesh(new THREE.PlaneGeometry(3.3, 4.0), screenMat);
-    screenMesh.rotation.x = -Math.PI / 2;
-    screenMesh.position.y = 0.06;
-    const screenBase = addLayerMesh(makeRoundBox(3.6, 0.1, 4.4, 0.5), new THREE.MeshStandardMaterial({ color: 0x0a0f18 }), 0.55, 3.8, 'display');
-    screenBase.add(screenMesh);
-
-    // 2. Layer: 180° Golden Rim Rotating Camera
-    const camRingGeom = new THREE.CylinderGeometry(0.55, 0.55, 0.35, 32);
-    const camMat = new THREE.MeshStandardMaterial({ color: 0x111827, metalness: 0.8, roughness: 0.3 });
-    const camMesh = addLayerMesh(camRingGeom, camMat, 0.35, 2.5, 'camera');
-    camMesh.position.set(1.5, 2.5, 0.5);
-
-    // Golden bezel ring & optic core
-    const goldRim = new THREE.Mesh(new THREE.TorusGeometry(0.56, 0.06, 8, 32), new THREE.MeshStandardMaterial({ color: 0xffaa00, metalness: 0.9, roughness: 0.2 }));
-    goldRim.rotation.x = Math.PI / 2;
-    camMesh.add(goldRim);
-    const optic = new THREE.Mesh(new THREE.CylinderGeometry(0.28, 0.28, 0.36, 24), new THREE.MeshStandardMaterial({ color: 0x0284c7, metalness: 0.9, roughness: 0.1 }));
-    camMesh.add(optic);
-
-    // 3. Layer: LJ939 Real Motherboard with Chips
-    const pcbMat = new THREE.MeshStandardMaterial({ map: createPCBTexture(), metalness: 0.4, roughness: 0.6 });
-    const pcbMesh = addLayerMesh(makeRoundBox(3.5, 0.08, 4.3, 0.45), pcbMat, 0.1, 1.2, 'motherboard');
-
-    // Add 3D Chips on top of Motherboard
-    function addChip(w, d, h, col, text, x, z) {
-      const chipMesh = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), new THREE.MeshStandardMaterial({ color: col, metalness: 0.7 }));
-      chipMesh.position.set(x, h/2 + 0.04, z);
-      pcbMesh.add(chipMesh);
-      // Canvas label
-      const c = document.createElement('canvas'); c.width = 128; c.height = 64;
-      const ctx = c.getContext('2d');
-      ctx.fillStyle = '#000'; ctx.fillRect(0,0,128,64);
-      ctx.fillStyle = '#fbbf24'; ctx.font = 'bold 20px Arial'; ctx.textAlign = 'center';
-      ctx.fillText(text, 64, 38);
-      const dec = new THREE.Mesh(new THREE.PlaneGeometry(w*0.9, d*0.9), new THREE.MeshBasicMaterial({ map: new THREE.CanvasTexture(c) }));
-      dec.rotation.x = -Math.PI / 2;
-      dec.position.y = h/2 + 0.042;
-      dec.position.set(x, h/2 + 0.042, z);
-      pcbMesh.add(dec);
-    }
-    addChip(1.1, 1.1, 0.14, 0x111827, 'LJ939 4G', -0.6, -0.6); // CPU
-    addChip(0.7, 0.7, 0.12, 0x0f172a, '4GB RAM', 0.6, -0.7);  // RAM
-    addChip(0.8, 0.9, 0.12, 0x1e1e24, '64GB ROM', 0.6, 0.4);  // ROM
-    addChip(0.8, 0.6, 0.15, 0xca8a04, 'SIM TRAY', -0.7, 0.7); // SIM
-
-    // 4. Layer: 1000mAh Lithium Battery & Coin Vibration Motor
-    const battMat = new THREE.MeshStandardMaterial({ map: createBatteryTexture(), metalness: 0.5, roughness: 0.4 });
-    const battMesh = addLayerMesh(makeRoundBox(2.8, 0.35, 3.4, 0.3), battMat, -0.35, -0.8, 'battery');
-
-    // Vibration Motor attached
-    const vibMesh = new THREE.Mesh(new THREE.CylinderGeometry(0.35, 0.35, 0.18, 24), new THREE.MeshStandardMaterial({ color: 0xfbbf24, metalness: 0.9 }));
-    vibMesh.position.set(1.1, -0.05, 1.2);
-    battMesh.add(vibMesh);
-
-    // 5. Layer: Titanium Casing with Heart Rate Sensors & Gold Pins
-    const caseMat = new THREE.MeshStandardMaterial({ color: 0x1e2736, metalness: 0.85, roughness: 0.25 });
-    const caseMesh = addLayerMesh(makeRoundBox(4.0, 0.4, 4.8, 0.75), caseMat, -0.85, -2.8, 'chassis');
-
-    // Orange Crown and Side Action Buttons
-    const crown = new THREE.Mesh(new THREE.CylinderGeometry(0.24, 0.24, 0.45, 24), new THREE.MeshStandardMaterial({ color: 0xff6600, metalness: 0.6 }));
-    crown.rotation.z = Math.PI / 2;
-    crown.position.set(2.05, 0.05, -0.8);
-    caseMesh.add(crown);
-
-    // Bottom Optical Heart Rate Dome & LEDs
-    const hrDome = new THREE.Mesh(new THREE.CylinderGeometry(0.85, 0.85, 0.1, 32), new THREE.MeshStandardMaterial({ color: 0x050810, metalness: 0.9 }));
-    hrDome.position.y = -0.22;
-    caseMesh.add(hrDome);
-    const greenLED = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.12, 0.12, 16), new THREE.MeshBasicMaterial({ color: 0x10b981 }));
-    greenLED.position.set(0.35, -0.22, 0);
-    caseMesh.add(greenLED);
-    const redLED = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.12, 0.12, 16), new THREE.MeshBasicMaterial({ color: 0xef4444 }));
-    redLED.position.set(-0.35, -0.22, 0);
-    caseMesh.add(redLED);
-
-    // Interactive Callouts Configuration (Exactly matching the target visual)
-    const callouts = [
-      { id: 25, title: "#25 Display Screen", sub: "AMOLED 2.02 HD Curved Glass", target: screenBase, side: "right", offsetY: 40 },
-      { id: 22, title: "#22 Camera", sub: "180° Rotatable HD Camera", target: camMesh, side: "left", offsetY: 20 },
-      { id: 1, title: "#1 CPU / Processor", sub: "LJ939 Quad-Core 4G Network Chip", target: pcbMesh, side: "right", offsetY: -10 },
-      { id: 34, title: "#34 Rechargeable Battery", sub: "800mAh-1000mAh 3.8V Cell", target: battMesh, side: "left", offsetY: -30 },
-      { id: 29, title: "#29 Heart Rate Sensor", sub: "Optical PPG Sensor Array", target: caseMesh, side: "right", offsetY: -60 }
-    ];
-
-    const calloutContainer = document.getElementById('callout-box-container');
-    const svgLines = document.getElementById('svg-lines');
-
-    callouts.forEach(c => {
-      const box = document.createElement('div');
-      box.className = 'callout';
-      box.id = `co-${c.id}`;
-      box.innerHTML = `<b>${c.title}</b>${c.sub}`;
-      calloutContainer.appendChild(box);
-
-      const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-      line.id = `line-${c.id}`;
-      svgLines.appendChild(line);
+    // Optical PPG Heart Rate Sensor Pod (#28, index 28)
+    const ppgPod = addPart(
+      28,
+      C(0.85, 0.18),
+      M_METAL(0x0a0f16, 0.15, 0.95),
+      [0, -1.25, 0],
+      [0, -4.2, 0]
+    );
+    [[0.32, 0.32], [-0.32, 0.32], [0.32, -0.32], [-0.32, -0.32]].forEach((coords) => {
+      const led = new THREE.Mesh(
+        C(0.12, 0.1),
+        new THREE.MeshStandardMaterial({ color: 0x10b981, emissive: 0x22ff66, emissiveIntensity: 2.2 })
+      );
+      led.position.set(coords[0], 0.08, coords[1]);
+      ppgPod.add(led);
     });
 
-    // Positioning loop for lines and callouts
-    const tempV = new THREE.Vector3();
-    function updateCallouts() {
-      const w = container.clientWidth;
-      const h = container.clientHeight;
+    addPart(29, C(0.22, 0.12), new THREE.MeshStandardMaterial({ color: 0xdc2626, emissive: 0xdc2626, emissiveIntensity: 0.6 }), [-0.95, -1.25, -0.9], [-0.95, -4.2, -0.9]);
+    addPart(30, C(0.18, 0.12), new THREE.MeshStandardMaterial({ color: 0x22c55e, emissive: 0x22c55e, emissiveIntensity: 0.8 }), [0.95, -1.25, -0.9], [0.95, -4.2, -0.9]);
+    addPart(31, C(0.22, 0.12), M_METAL(0x94a3b8), [-0.95, -1.25, 0.9], [-0.95, -4.2, 0.9]);
+    addPart(32, B(0.4, 0.08, 0.9), M_METAL(0xf59e0b, 0.1, 0.95), [1.5, -1.25, 0], [1.5, -4.2, 0]);
 
-      callouts.forEach(c => {
-        c.target.getWorldPosition(tempV);
-        tempV.project(camera);
+    // Layer 1: 1000mAh Battery Pack (#34, index 33)
+    const battMesh = addPart(
+      33,
+      rr(3.3, 3.0, 0.42, 0.25),
+      M_METAL(0x222c38, 0.3, 0.75),
+      [0, -0.45, 0.1],
+      [0, -1.9, 0.1]
+    );
+    const battCanvas = document.createElement('canvas');
+    battCanvas.width = 320; battCanvas.height = 260;
+    const bx = battCanvas.getContext('2d')!;
+    bx.fillStyle = '#1e2632'; bx.fillRect(0, 0, 320, 260);
+    bx.fillStyle = '#f59e0b'; bx.fillRect(0, 230, 320, 30);
+    bx.fillStyle = '#ffffff'; bx.font = 'bold 44px Arial'; bx.textAlign = 'center';
+    bx.fillText('1000mAh', 160, 95);
+    bx.fillText('Battery', 160, 145);
+    bx.fillStyle = '#fb923c'; bx.font = 'bold 26px Arial';
+    bx.fillText('3.8V HIGH GAIN', 160, 195);
+    const battDecal = new THREE.Mesh(new THREE.PlaneGeometry(3.0, 2.6), new THREE.MeshBasicMaterial({ map: new THREE.CanvasTexture(battCanvas) }));
+    battDecal.rotation.x = -PI / 2;
+    battDecal.position.y = 0.22;
+    battMesh.add(battDecal);
 
-        const x = (tempV.x * 0.5 + 0.5) * w;
-        const y = (-tempV.y * 0.5 + 0.5) * h;
+    addPart(34, C(0.35, 0.4), M_METAL(0xd1d5db, 0.2, 0.9), [-1.2, -0.4, -1.6], [-1.2, -1.9, -1.6]);
+    addPart(35, B(3.2, 0.05, 0.1), M_METAL(0xf59e0b), [0, 0.05, -2.1], [0, -0.8, -2.1]);
+    addPart(36, B(3.2, 0.05, 0.1), M_METAL(0x22d3ee), [0, 0.05, 2.1], [0, -0.8, 2.1]);
+    addPart(37, B(0.1, 0.05, 3.2), M_METAL(0xa3e635), [1.8, 0.05, 0], [1.8, -0.8, 0]);
 
-        const box = document.getElementById(`co-${c.id}`);
-        const line = document.getElementById(`line-${c.id}`);
+    // Layer 2: Emerald Green PCB Board (#39, index 38)
+    const pcbMesh = addPart(
+      38,
+      rr(3.6, 4.3, 0.1, 0.35),
+      new THREE.MeshStandardMaterial({ color: 0x054d2e, metalness: 0.4, roughness: 0.3 }),
+      [0, 0.15, 0],
+      [0, 0.2, 0]
+    );
+    const pcbCircuitPlane = new THREE.Mesh(
+      new THREE.PlaneGeometry(3.5, 4.2),
+      new THREE.MeshBasicMaterial({ map: createPcbTexture(), transparent: true, opacity: 0.95, side: THREE.DoubleSide })
+    );
+    pcbCircuitPlane.rotation.x = -PI / 2;
+    pcbCircuitPlane.position.y = 0.055;
+    pcbMesh.add(pcbCircuitPlane);
 
-        if (tempV.z > 1) { // Behind camera
-          box.style.opacity = '0';
-          line.style.opacity = '0';
-          return;
-        }
+    // IC Chips (0 to 14)
+    for (let i = 0; i < 15; i++) {
+      const r = Math.floor(i / 5);
+      const c = i % 5;
+      const isCpu = i === 0;
 
-        box.style.opacity = '1';
-        line.style.opacity = '1';
+      const chipMesh = addPart(
+        i,
+        B(isCpu ? 0.98 : 0.42 + (i % 3) * 0.08, 0.16, isCpu ? 0.98 : 0.38 + (i % 2) * 0.1),
+        new THREE.MeshStandardMaterial({
+          color: isCpu ? 0x0a0f0d : 0x162230,
+          metalness: 0.85,
+          roughness: 0.2,
+          emissive: isCpu ? 0x3d2700 : 0x000000,
+        }),
+        [(c - 2) * 0.68, 0.28, (r - 1) * 1.05 + 0.1],
+        [(c - 2) * 0.55, 1.8 + r * 0.4, (r - 1) * 0.55]
+      );
 
-        const boxW = 145;
-        let bx, by;
+      if (isCpu) {
+        const cpuCanvas = document.createElement('canvas');
+        cpuCanvas.width = 256; cpuCanvas.height = 256;
+        const cx = cpuCanvas.getContext('2d')!;
+        cx.fillStyle = '#080c0a'; cx.fillRect(0, 0, 256, 256);
+        cx.strokeStyle = '#f59e0b'; cx.lineWidth = 12;
+        cx.strokeRect(8, 8, 240, 240);
+        cx.fillStyle = '#f59e0b'; cx.beginPath(); cx.arc(28, 28, 8, 0, Math.PI * 2); cx.fill();
+        cx.fillStyle = '#ffffff'; cx.font = 'bold 54px Arial'; cx.textAlign = 'center';
+        cx.fillText('LJ939', 128, 115);
+        cx.fillStyle = '#f59e0b'; cx.font = 'bold 36px Arial';
+        cx.fillText('4G SOC', 128, 175);
 
-        if (c.side === 'left') {
-          bx = 20;
-          by = Math.max(10, Math.min(h - 55, y + c.offsetY));
-          line.setAttribute('x1', bx + boxW);
-          line.setAttribute('y1', by + 22);
-        } else {
-          bx = w - boxW - 20;
-          by = Math.max(10, Math.min(h - 55, y + c.offsetY));
-          line.setAttribute('x1', bx);
-          line.setAttribute('y1', by + 22);
-        }
-
-        box.style.left = `${bx}px`;
-        box.style.top = `${by}px`;
-        line.setAttribute('x2', x);
-        line.setAttribute('y2', y);
-      });
-    }
-
-    // Animation & State Handling
-    let isExploded = true;
-    let isAutoSpin = false;
-    let currentDeg = 30;
-    let separationProgress = 1.0;
-    let targetSeparation = 1.0;
-
-    function toggleExplosion() {
-      targetSeparation = (targetSeparation > 0.5) ? 0.0 : 1.0;
-      isExploded = targetSeparation > 0.5;
-      document.getElementById('btn-explode').classList.toggle('active', isExploded);
-    }
-
-    function assembleWatch() {
-      targetSeparation = 0.0;
-      isExploded = false;
-      document.getElementById('btn-explode').classList.remove('active');
-    }
-
-    function toggleAutoSpin() {
-      isAutoSpin = !isAutoSpin;
-      document.getElementById('btn-spin').classList.toggle('active', isAutoSpin);
-    }
-
-    function manualRotate(val) {
-      if (isAutoSpin) toggleAutoSpin();
-      currentDeg = val;
-      watchRig.rotation.y = (val * Math.PI) / 180;
-      document.getElementById('deg-label').innerText = `${val}°`;
-    }
-
-    function selectPart(id) {
-      const p = partsData.find(item => item.id === id);
-      if (!p) return;
-
-      document.getElementById('info-title').innerText = `Part #${p.id}: ${p.name}`;
-      document.getElementById('info-desc').innerText = `${p.role} - ${p.desc}`;
-      document.getElementById('soc-badge').innerText = `#${p.id}`;
-
-      document.querySelectorAll('.item-row').forEach(r => r.classList.remove('active'));
-      const activeRow = document.getElementById(`row-${id}`);
-      if (activeRow) {
-        activeRow.classList.add('active');
-        activeRow.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        const cpuDecal = new THREE.Mesh(new THREE.PlaneGeometry(0.88, 0.88), new THREE.MeshBasicMaterial({ map: new THREE.CanvasTexture(cpuCanvas) }));
+        cpuDecal.rotation.x = -PI / 2;
+        cpuDecal.position.y = 0.085;
+        chipMesh.add(cpuDecal);
       }
-
-      if (targetSeparation < 0.2) toggleExplosion();
     }
 
-    // Main Render Loop
-    function animate() {
-      requestAnimationFrame(animate);
+    for (let j = 0; j < 4; j++) {
+      addPart(15 + j, B(0.35, 0.25, 0.65), M_METAL(0x475569), [-2.05, 0.1, -1.3 + j * 0.9], [-2.8, -0.6, 0]);
+    }
 
-      // Smooth separation interpolation
-      separationProgress += (targetSeparation - separationProgress) * 0.08;
-      layers.forEach(m => {
-        m.position.y = THREE.MathUtils.lerp(m.userData.baseY, m.userData.expY, separationProgress);
-      });
+    // 180° Rotatable HD Camera Module (#22, index 21)
+    const camBase = addPart(
+      21,
+      C(0.58, 0.48),
+      M_METAL(0x111822, 0.15, 0.95),
+      [1.95, 0.8, -1.2],
+      [2.6, 2.2, -1.2]
+    );
+    // Metallic gold rim
+    const camGoldRim = new THREE.Mesh(
+      new THREE.TorusGeometry(0.58, 0.08, 16, 40),
+      M_METAL(0xff7700, 0.12, 0.98)
+    );
+    camGoldRim.rotation.x = PI / 2;
+    camBase.add(camGoldRim);
 
-      // 360 Rotation
-      if (isAutoSpin) {
-        currentDeg = (currentDeg + 0.35) % 360;
-        watchRig.rotation.y = (currentDeg * Math.PI) / 180;
-        document.getElementById('angle-slider').value = Math.floor(currentDeg);
-        document.getElementById('deg-label').innerText = `${Math.floor(currentDeg)}°`;
+    // Deep sapphire blue optical lens
+    const lensMesh = new THREE.Mesh(
+      C(0.44, 0.14),
+      new THREE.MeshPhysicalMaterial({
+        color: 0x0284c7,
+        emissive: 0x0284c7,
+        emissiveIntensity: 0.65,
+        roughness: 0.02,
+        metalness: 0.15,
+        clearcoat: 1.0,
+      })
+    );
+    lensMesh.position.y = 0.23;
+    camBase.add(lensMesh);
+
+    const pupilMesh = new THREE.Mesh(C(0.18, 0.16), M_METAL(0x02050a, 0.1, 0.95));
+    pupilMesh.position.y = 0.26;
+    camBase.add(pupilMesh);
+
+    addPart(20, C(0.16, 0.3), M_METAL(0x94a3b8), [2.1, 0.1, 0.2], [2.7, 0.8, 0]);
+    addPart(22, B(0.5, 0.04, 0.7), M_METAL(0xea580c), [1.9, 0.1, 1.1], [2.6, 0.8, 0.8]);
+    addPart(23, B(0.5, 0.04, 0.7), M_METAL(0xea580c), [1.9, 0.4, -0.6], [2.6, 1.8, -0.6]);
+
+    // ==========================================
+    // LAYER 3: 2.02" AMOLED SCREEN & CRYSTAL GLASS
+    // ==========================================
+
+    // #25: AMOLED Display Panel
+    const displayPlate = addPart(
+      24,
+      rr(3.8, 4.5, 0.12, 0.65),
+      M_METAL(0x02050b, 0.1, 0.98),
+      [0, 0.9, 0],
+      [0, 3.4, 0]
+    );
+    const screenFace = new THREE.Mesh(
+      new THREE.PlaneGeometry(3.5, 4.2),
+      new THREE.MeshBasicMaterial({
+        map: createRealisticScreenTexture(),
+        side: THREE.DoubleSide,
+      })
+    );
+    screenFace.rotation.x = -PI / 2;
+    screenFace.position.y = 0.075;
+    displayPlate.add(screenFace);
+
+    // #26: Sapphire Crystal Armor Glass (98% Ultra-Clear, Zero Fog!)
+    addPart(
+      25,
+      rr(4.0, 4.7, 0.06, 0.75),
+      new THREE.MeshPhysicalMaterial({
+        color: 0xffffff,
+        transparent: true,
+        opacity: 0.15,
+        transmission: 0.92,
+        roughness: 0.02,
+        metalness: 0.05,
+        clearcoat: 1.0,
+        depthWrite: false,
+      }),
+      [0, 1.15, 0],
+      [0, 5.2, 0]
+    );
+
+    // #27: Capacitive Touch Digitizer Grid (Clear)
+    addPart(
+      26,
+      rr(3.7, 4.4, 0.03, 0.5),
+      new THREE.MeshPhysicalMaterial({
+        color: 0x38bdf8,
+        transparent: true,
+        opacity: 0.08,
+        transmission: 0.95,
+        roughness: 0.05,
+        depthWrite: false,
+      }),
+      [0, 1.05, 0],
+      [0, 4.3, 0]
+    );
+
+    // #28: Display FPC Flex Ribbon
+    addPart(27, B(1.1, 0.04, 0.8), M_METAL(0xf97316), [0, 0.7, 2.1], [0, 2.8, 0.8]);
+
+    // SMD Components (39 to 44)
+    const compColors = [0xd1d5db, 0xb45309, 0x1e293b, 0x064e3b, 0xe2e8f0, 0xd97706];
+    for (let k = 0; k < 6; k++) {
+      addPart(
+        39 + k,
+        B(0.24, 0.14, 0.18),
+        M_METAL(compColors[k]),
+        [-1.0 + k * 0.42, 0.22, 1.2 + (k % 2) * 0.4],
+        [-0.9 + k * 0.38, 1.2 + (k % 3) * 0.3, 0.7]
+      );
+    }
+
+    partsMeshesRef.current = P;
+    numberSpritesRef.current = S;
+    nameSpritesRef.current = NS;
+
+    const raycaster = new THREE.Raycaster();
+    const mouse = new THREE.Vector2();
+
+    const handlePointerDown = (event: MouseEvent) => {
+      const rect = renderer.domElement.getBoundingClientRect();
+      mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+      mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+
+      raycaster.setFromCamera(mouse, camera);
+      const intersects = raycaster.intersectObjects(P, true);
+
+      if (intersects.length > 0) {
+        let obj: THREE.Object3D | null = intersects[0].object;
+        while (obj && obj !== watchGroup && obj.userData.i === undefined) {
+          obj = obj.parent;
+        }
+        if (obj && obj.userData.i !== undefined) {
+          const partIndex = obj.userData.i;
+          playSound.selectPart();
+          onSelectPart(partIndex + 1);
+        }
       }
+    };
 
+    renderer.domElement.addEventListener('pointerdown', handlePointerDown);
+
+    let animationFrameId = 0;
+    const animate = () => {
+      animationFrameId = requestAnimationFrame(animate);
       controls.update();
+
+      const azimuth = Math.round(((controls.getAzimuthalAngle() * 180) / Math.PI + 360) % 360);
+      setCameraAngle(azimuth);
+
       renderer.render(scene, camera);
-      updateCallouts();
-    }
+    };
     animate();
 
-    // Window Resizing
-    window.addEventListener('resize', () => {
-      const w = container.clientWidth;
-      const h = container.clientHeight;
+    const handleResize = () => {
+      if (!containerRef.current || !renderer || !camera) return;
+      const w = containerRef.current.clientWidth;
+      const h = containerRef.current.clientHeight;
       camera.aspect = w / h;
       camera.updateProjectionMatrix();
       renderer.setSize(w, h);
+    };
+    window.addEventListener('resize', handleResize);
+
+    return () => {
+      cancelAnimationFrame(animationFrameId);
+      window.removeEventListener('resize', handleResize);
+      renderer.domElement.removeEventListener('pointerdown', handlePointerDown);
+      renderer.dispose();
+    };
+  }, []);
+
+  // Exploded Distance Interpolation
+  useEffect(() => {
+    const P = partsMeshesRef.current;
+    const S = numberSpritesRef.current;
+    const NS = nameSpritesRef.current;
+    if (!P.length) return;
+
+    const t = isExploded ? explosionFactor : 0;
+
+    P.forEach((m, idx) => {
+      if (!m || !m.userData.b || !m.userData.o) return;
+      m.position.lerpVectors(m.userData.b, m.userData.o, t);
+
+      if (S[idx]) {
+        S[idx].position.copy(m.position);
+        S[idx].position.y += 0.45;
+      }
+      if (NS[idx]) {
+        NS[idx].position.copy(m.position);
+        NS[idx].position.y += 0.9;
+      }
+    });
+  }, [isExploded, explosionFactor]);
+
+  // Auto-Spin
+  useEffect(() => {
+    if (controlsRef.current) {
+      controlsRef.current.autoRotate = isAutoSpinning;
+      controlsRef.current.autoRotateSpeed = 2.5;
+    }
+  }, [isAutoSpinning]);
+
+  // Labels Filter
+  useEffect(() => {
+    const S = numberSpritesRef.current;
+    const NS = nameSpritesRef.current;
+    const activeIdx = activePartNum - 1;
+
+    S.forEach((spr, idx) => {
+      if (!spr) return;
+      if (!showLabels || labelMode === 'none') {
+        spr.visible = false;
+      } else if (labelMode === 'selected') {
+        spr.visible = idx === activeIdx;
+      } else {
+        spr.visible = true;
+      }
     });
 
-    // Set initial rotation view
-    watchRig.rotation.x = 0.25;
-    manualRotate(30);
-    selectPart(1);
-  </script>
-</body>
-</html>
+    NS.forEach((nspr, idx) => {
+      if (!nspr) return;
+      if (!showLabels || labelMode === 'none') {
+        nspr.visible = false;
+      } else if (labelMode === 'selected') {
+        nspr.visible = idx === activeIdx;
+      } else {
+        nspr.visible = true;
+      }
+    });
+  }, [showLabels, labelMode, activePartNum]);
+
+  // Emissive highlight on selected part
+  useEffect(() => {
+    const P = partsMeshesRef.current;
+    const idx = activePartNum - 1;
+
+    P.forEach((m, i) => {
+      if (!m) return;
+      const mat = m.material as THREE.MeshStandardMaterial;
+      if (mat && mat.emissive) {
+        if (i === idx) {
+          if (i === 38) {
+            mat.emissive.set(0x05b871);
+            mat.emissiveIntensity = 0.8;
+          } else if (i === 24) {
+            mat.emissive.set(0x00eaff);
+            mat.emissiveIntensity = 0.5;
+          } else if (i === 33) {
+            mat.emissive.set(0xf59e0b);
+            mat.emissiveIntensity = 0.5;
+          } else {
+            mat.emissive.set(0xff5500);
+            mat.emissiveIntensity = 0.9;
+          }
+        } else {
+          if (i === 0) {
+            mat.emissive.set(0x3d2700);
+            mat.emissiveIntensity = 0.4;
+          } else if (i === 38) {
+            mat.emissive.set(0x022919);
+            mat.emissiveIntensity = 0.5;
+          } else if (i === 28) {
+            mat.emissive.set(0x00ff88);
+            mat.emissiveIntensity = 0.7;
+          } else if (i === 19) {
+            mat.emissive.set(0xff4400);
+            mat.emissiveIntensity = 0.45;
+          } else {
+            mat.emissive.set(0x000000);
+            mat.emissiveIntensity = 0;
+          }
+        }
+      }
+    });
+  }, [activePartNum]);
+
+  const handleDownloadSnapshot = useCallback(() => {
+    playSound.shutter();
+    setIsCapturing(true);
+
+    const renderer = rendererRef.current;
+    const scene = sceneRef.current;
+    const camera = cameraRef.current;
+    if (!renderer || !scene || !camera) {
+      setIsCapturing(false);
+      return;
+    }
+
+    renderer.render(scene, camera);
+    const rawDataUrl = renderer.domElement.toDataURL('image/png');
+
+    const canvas = document.createElement('canvas');
+    canvas.width = renderer.domElement.width;
+    canvas.height = renderer.domElement.height;
+    const ctx = canvas.getContext('2d')!;
+
+    const img = new Image();
+    img.onload = () => {
+      ctx.drawImage(img, 0, 0);
+
+      ctx.fillStyle = '#ffffff';
+      ctx.font = `bold ${Math.max(16, canvas.width / 50)}px Arial`;
+      ctx.fillText('YASHU PUDO 4G ULTRA SMARTWATCH', 24, 38);
+
+      ctx.fillStyle = '#ff9a1f';
+      ctx.font = `bold ${Math.max(13, canvas.width / 65)}px Arial`;
+      ctx.fillText('45 HARDWARE PARTS TEARDOWN ARCHITECTURE', 24, 62);
+
+      canvas.toBlob((blob) => {
+        if (!blob) return;
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `YASHU-PUDO-3D-Part${activePartNum}.png`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        setIsCapturing(false);
+      }, 'image/png');
+    };
+    img.src = rawDataUrl;
+  }, [activePartNum]);
+
+  const handleResetCamera = () => {
+    playSound.click();
+    if (controlsRef.current && cameraRef.current) {
+      cameraRef.current.position.set(7.8, 7.2, 11.8);
+      controlsRef.current.target.set(0, 0.2, 0);
+      controlsRef.current.update();
+    }
+  };
+
+  const handleZoom = (delta: number) => {
+    playSound.click();
+    if (controlsRef.current && cameraRef.current) {
+      cameraRef.current.position.multiplyScalar(delta);
+      controlsRef.current.update();
+    }
+  };
+
+  return (
+    <div className="relative w-full h-[460px] sm:h-[500px] bg-gradient-to-b from-[#060c14] via-[#04070b] to-[#020408] rounded-2xl overflow-hidden select-none border border-[#16445b]/80 group">
+      <div ref={containerRef} className="w-full h-full cursor-grab active:cursor-grabbing" />
+
+      {/* Floating 3D Controls */}
+      <div className="absolute right-3 top-3 flex flex-col gap-1.5 bg-[#0b1522]/90 border border-[#16445b] p-1 rounded-xl shadow-lg z-10">
+        <button
+          onClick={onToggleLabels}
+          className={`p-1.5 rounded-lg transition-colors cursor-pointer ${
+            showLabels
+              ? 'bg-[#00eaff] text-black shadow-sm'
+              : 'text-[#94a3b8] hover:text-[#00eaff] hover:bg-[#162a3d]'
+          }`}
+          title={showLabels ? '🏷 1-45 टैग हटाएं (Hide Tags)' : '🏷 1-45 टैग लगाएं (Show Tags)'}
+        >
+          <Tag className="w-4 h-4" />
+        </button>
+        <button
+          onClick={handleDownloadSnapshot}
+          disabled={isCapturing}
+          className="p-1.5 rounded-lg text-[#ffa31a] hover:bg-[#162a3d] transition-colors cursor-pointer"
+          title="Take 3D Snapshot"
+        >
+          <Camera className="w-4 h-4" />
+        </button>
+        <button
+          onClick={() => handleZoom(0.85)}
+          className="p-1.5 rounded-lg text-[#94a3b8] hover:text-[#00eaff] hover:bg-[#162a3d] transition-colors cursor-pointer"
+          title="Zoom In"
+        >
+          <ZoomIn className="w-4 h-4" />
+        </button>
+        <button
+          onClick={() => handleZoom(1.15)}
+          className="p-1.5 rounded-lg text-[#94a3b8] hover:text-[#00eaff] hover:bg-[#162a3d] transition-colors"
+          title="Zoom Out"
+        >
+          <ZoomOut className="w-4 h-4" />
+        </button>
+        <button
+          onClick={handleResetCamera}
+          className="p-1.5 rounded-lg text-[#94a3b8] hover:text-[#00eaff] hover:bg-[#162a3d] transition-colors"
+          title="Reset Camera"
+        >
+          <RefreshCw className="w-4 h-4" />
+        </button>
+      </div>
+
+      <div className="absolute bottom-2 inset-x-0 text-center pointer-events-none">
+        <span className="font-mono-tech text-[10px] text-[#91b7c8] bg-black/70 px-3 py-0.5 rounded-full border border-[#16445b]/60">
+          {language === 'hi'
+            ? 'पार्ट चुनें = बाहर आकर 360° घूमेगा | ड्रैग = घुमाएं | पिंच = ज़ूम'
+            : 'Select part = Focus | Drag = Orbit 360° | Scroll = Zoom'}
+        </span>
+      </div>
+    </div>
+  );
+};
